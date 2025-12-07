@@ -1,5 +1,5 @@
-const User = require('../models/user')
-const Review = require('../models/review')
+const User = require("../models/user");
+const Review = require("../models/review");
 const {
   loginSchema,
   registerSchema,
@@ -12,10 +12,10 @@ const {
 
 // Function to send a Flash error instead of re-directing to error page
 const JoiFlashError = (error, req, res, next, url) => {
-  console.log('JoiFlashError called, error:', error);
+  console.log("JoiFlashError called, error:", error);
   if (error) {
     const msg = error.details.map((el) => el.message).join(",");
-    console.log('validation error message:', msg);
+    console.log("validation error message:", msg);
     if (process.env.NODE_ENV !== "production") {
       // Allows for generic message in production
       req.flash("error", `${msg}`);
@@ -27,10 +27,10 @@ const JoiFlashError = (error, req, res, next, url) => {
         "There has been a validation error, please try again.",
       );
     }
-    console.log('redirecting to:', url);
+    console.log("redirecting to:", url);
     return res.redirect(`${url}`);
   } else {
-    console.log('no validation error, calling next()');
+    console.log("no validation error, calling next()");
     return next();
   }
 };
@@ -56,10 +56,10 @@ module.exports.validateLogin = (req, res, next) => {
 // Uses Joi to validate user input for forgot password form
 // forgotSchema is coming from the schemas.js file
 module.exports.validateForgot = (req, res, next) => {
-  console.log('validateForgot called');
+  console.log("validateForgot called");
   // forgotSchema is coming from the schemas.js file
   const { error } = forgotSchema.validate(req.body);
-  console.log('validation error:', error);
+  console.log("validation error:", error);
   // JoiFlashError function is defined above
   JoiFlashError(error, req, res, next, "/forgot");
 };
@@ -96,9 +96,9 @@ module.exports.validateDelete = (req, res, next) => {
 module.exports.validateReview = (req, res, next) => {
   const { error } = reviewSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map(el => el.message).join(',');
-    req.flash('error', msg);
-    return res.redirect('back');
+    const msg = error.details.map((el) => el.message).join(",");
+    req.flash("error", msg);
+    return res.redirect("back");
   } else {
     return next();
   }
@@ -111,9 +111,9 @@ module.exports.isLoggedIn = (req, res, next) => {
     !req.session.userId ||
     !req.user._id.equals(req.session.userId)
   ) {
-    req.session.returnTo = req.originalUrl
-    req.flash('error', 'You must be signed in');
-    return res.redirect('/login')
+    req.session.returnTo = req.originalUrl;
+    req.flash("error", "You must be signed in");
+    return res.redirect("/login");
   }
   next();
 };
@@ -131,7 +131,7 @@ module.exports.populateUser = async (req, res, next) => {
         next();
       })
       .catch((err) => {
-        console.error('Error populating user:', err);
+        console.error("Error populating user:", err);
         next();
       });
   } else {
@@ -141,14 +141,14 @@ module.exports.populateUser = async (req, res, next) => {
 
 // Helper function to check if user is admin
 const isAdminUser = (user) => {
-  return user && (user.role === 'admin' || user.username === 'hutchybop');
+  return user && (user.role === "admin" || user.username === "hutchybop");
 };
 
 // Middleware to check if user is admin
 module.exports.isAdmin = (req, res, next) => {
   if (!isAdminUser(req.user)) {
-    req.flash('error', 'You do not have permission to do that');
-    return res.redirect('/blogim');
+    req.flash("error", "You do not have permission to do that");
+    return res.redirect("/blogim");
   }
   next();
 };
@@ -161,7 +161,7 @@ module.exports.isReviewAuthor = async (req, res, next) => {
   const { id, reviewId } = req.params;
   const review = await Review.findById(reviewId);
   if (!review.author.equals(req.user._id)) {
-    req.flash('error', 'You do not have permission to do that');
+    req.flash("error", "You do not have permission to do that");
     return res.redirect(`/blogim/${id}`);
   }
   next();

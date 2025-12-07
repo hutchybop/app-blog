@@ -1,7 +1,6 @@
+const postText = document.querySelectorAll(".postText");
 
-const postText = document.querySelectorAll('.postText')
-
-for (p of postText){
-    let post = p.innerText.replace(/<p><\/p>/g, '');
-    p.innerHTML = post
+for (let postElement of postText) {
+  let post = postElement.innerText.replace(/<p><\/p>/g, "");
+  postElement.innerHTML = post;
 }

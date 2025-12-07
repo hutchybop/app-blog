@@ -33,8 +33,8 @@ const UserSchema = new Schema({
   resetPasswordUsed: Boolean,
   role: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
+    enum: ["user", "admin"],
+    default: "user",
   },
 });
 
@@ -171,9 +171,9 @@ UserSchema.methods.authenticate = async function (password) {
 };
 
 // Pre-save hook to remove old Passport fields when password is set
-UserSchema.pre('save', function() {
+UserSchema.pre("save", function () {
   // If password is being set/modified, remove old Passport fields
-  if (this.isModified('password')) {
+  if (this.isModified("password")) {
     this.hash = undefined;
     this.salt = undefined;
   }

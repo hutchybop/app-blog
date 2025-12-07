@@ -177,4 +177,4 @@ arising under the disclaimer, including liabilities arising in contract, in tort
 breach of statutory duty.
 
 As long as the website and the information and services on the website are provided free of
-charge, we will not be liable for any loss or damage of any nature.`
+charge, we will not be liable for any loss or damage of any nature.`;
