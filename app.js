@@ -25,7 +25,6 @@ const {
 } = require("./utils/rateLimiter");
 
 // database lookup for blockedIPs
-const tnc = require("./tnc");
 
 // Required for recaptcha
 const Recaptcha = require("express-recaptcha").RecaptchaV2;
@@ -168,7 +167,7 @@ app.use(
 
 //setting up session
 const sessionConfig = {
-  name: "hutchyBop",
+  name: "blog_longrunner",
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
@@ -215,14 +214,6 @@ app.use(async (req, res, next) => {
   // }
 
   next();
-});
-
-// info route
-app.get("/info", (req, res) => {
-  res.render("info", {
-    title: "hutchybop.co.uk Information Page",
-    tnc: tnc.tnc,
-  });
 });
 
 // policy routes

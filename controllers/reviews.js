@@ -162,7 +162,7 @@ module.exports.delete = async (req, res) => {
   req.flash("success", "Successfully deleted review!");
 
   mail(
-    "Review deleted on hutchybop.co.uk",
+    "Review deleted on blog.longrunner.co.uk",
     "Hello,\n\n" +
       "A review has been deleted on " +
       '"' +

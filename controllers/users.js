@@ -8,7 +8,7 @@ const { loginUser, logoutUser } = require("../utils/auth");
 // Register - User (GET)
 module.exports.register = (req, res) => {
   res.render("users/register", {
-    title: "Register at hutchybop.co.uk",
+    title: "Register at blog.longrunner.co.uk",
     page: "Users",
   });
 };
@@ -29,7 +29,7 @@ module.exports.registerPost = async (req, res) => {
     await loginUser(req, registeredUser);
 
     mail(
-      "New User Registered on hutchybop.co.uk",
+      "New User Registered on blog.longrunner.co.uk",
       "Hello,\n\n" +
         "A new User has registered! \n\n" +
         "Username: " +
@@ -47,7 +47,7 @@ module.exports.registerPost = async (req, res) => {
 // login - user (GET)
 module.exports.login = (req, res) => {
   res.render("users/login", {
-    title: "Login to hutchybop.co.uk",
+    title: "Login to blog.longrunner.co.uk",
     page: "Users",
   });
 };
@@ -94,7 +94,7 @@ module.exports.forgotPost = async (req, res) => {
     await foundUser.save();
 
     await mail(
-      "www.hutchybop.co.uk Password Reset",
+      "blog.longrunner.co.uk Password Reset",
       "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
         "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
         "http://" +
@@ -167,11 +167,11 @@ module.exports.resetPost = async (req, res) => {
   await loginUser(req, foundUser);
 
   mail(
-    "Your password has been changed for www.hutchybop.co.uk",
+    "Your password has been changed for blog.longrunner.co.uk",
     "Hello,\n\n" +
       "This is a confirmation that the password for your account " +
       foundUser.email +
-      " on www.hutchybop.co.uk has just been changed.\n",
+      " on blog.longrunner.co.uk has just been changed.\n",
     foundUser.email,
   );
 
@@ -228,29 +228,29 @@ module.exports.detailsPost = async (req, res) => {
       const detailsUser = await User.findById(id);
 
       mail(
-        "Details Updated - hutchybop.co.uk",
+        "Details Updated - blog.longrunner.co.uk",
         "Hello,\n\n" +
-          "Your details on hutchybop.co.uk have been changed, your new details are:" +
+          "Your details on blog.longrunner.co.uk have been changed, your new details are:" +
           "\n\n" +
           `Email: ${detailsUser.email}` +
           "\n\n" +
           `Username: ${detailsUser.username}` +
           "\n\n" +
-          "If you did not make these changes please conact info@hutchybop.co.uk",
+          "If you did not make these changes please conact info@longrunner.co.uk",
         detailsUser.email,
       );
 
       if (detailsUser.email != updatedUser.email) {
         mail(
-          "Details Updated - hutchybop.co.uk",
+          "Details Updated - blog.longrunner.co.uk",
           "Hello,\n\n" +
-            "Your details on hutchybop.co.uk have been changed, your new details are:" +
+            "Your details on blog.longrunner.co.uk have been changed, your new details are:" +
             "\n\n" +
             `Email: ${detailsUser.email}` +
             "\n\n" +
             `Username: ${detailsUser.username}` +
             "\n\n" +
-            "If you did not make these changes please conact info@hutchybop.co.uk",
+            "If you did not make these changes please conact info@longrunner.co.uk",
           updatedUser.email,
         );
       }
@@ -314,7 +314,7 @@ module.exports.delete = async (req, res) => {
       res.redirect(`/?success=${message}`);
 
       mail(
-        "Account deleted on hutchybop.co.uk",
+        "Account deleted on blog.longrunner.co.uk",
         "Hello,\n\n" + "This is confirm that your account has been deleted",
         userEmail,
       );
