@@ -18,12 +18,12 @@
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://www.hutchybop.co.uk/login</loc>
+  <loc>http://www.hutchybop.co.uk/auth/login</loc>
   <lastmod>2021-04-21T19:01:36+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://www.hutchybop.co.uk/register</loc>
+  <loc>http://www.hutchybop.co.uk/auth/register</loc>
   <lastmod>2021-04-21T19:01:36+00:00</lastmod>
   <priority>0.80</priority>
 </url>
@@ -83,7 +83,7 @@
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://www.hutchybop.co.uk/forgot</loc>
+  <loc>http://www.hutchybop.co.uk/auth/forgot</loc>
   <lastmod>2021-04-21T19:01:36+00:00</lastmod>
   <priority>0.64</priority>
 </url>

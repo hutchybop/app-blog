@@ -19,7 +19,7 @@ module.exports.registerPost = async (req, res) => {
     // Check if passwords match
     if (req.body.password !== req.body.confirm_password) {
       req.flash("error", "Passwords do not match.");
-      return res.redirect("/register");
+      return res.redirect("/auth/register");
     }
 
     const { email, username, password } = req.body;
@@ -40,7 +40,7 @@ module.exports.registerPost = async (req, res) => {
     res.redirect("/blogim");
   } else {
     req.flash("error", "You must accept the Terms and Conditions.");
-    res.redirect("/register");
+    res.redirect("/auth/register");
   }
 };
 
@@ -108,7 +108,7 @@ module.exports.forgotPost = async (req, res) => {
   }
 
   req.flash("success", successMessage);
-  res.redirect("/login");
+  res.redirect("/auth/login");
 };
 
 // reset - user (GET)
@@ -123,7 +123,7 @@ module.exports.reset = async (req, res) => {
       "error",
       "Password reset token is invalid, has been used, or has expired.",
     );
-    return res.redirect("/forgot");
+    return res.redirect("/auth/forgot");
   }
 
   res.render("users/reset", {
@@ -205,14 +205,14 @@ module.exports.detailsPost = async (req, res) => {
     if (foundEmail != null) {
       if (foundEmail.id != id) {
         req.flash("error", "Email already registered");
-        return res.redirect("/details");
+        return res.redirect("/auth/details");
       }
     }
 
     if (foundUsername != null) {
       if (foundUsername.id != id) {
         req.flash("error", "Username already taken");
-        return res.redirect("/details");
+        return res.redirect("/auth/details");
       }
     }
 
@@ -262,17 +262,17 @@ module.exports.detailsPost = async (req, res) => {
         "success",
         "Details updated, please log-in with new details. An email has been sent to confirm your new details",
       );
-      res.redirect(307, "/login");
+      res.redirect(307, "/auth/login");
     } else {
       req.flash(
         "error",
         "Password incorrect, no details changed. Please try again",
       );
-      res.redirect("/details");
+      res.redirect("/auth/details");
     }
   } catch (e) {
     req.flash("error", e.message);
-    res.redirect("/login");
+    res.redirect("/auth/login");
   }
 };
 
@@ -323,10 +323,10 @@ module.exports.delete = async (req, res) => {
       );
     } else {
       req.flash("error", "Incorrect password, please try again");
-      res.redirect("/deletepre");
+      res.redirect("/auth/delete-pre");
     }
   } else {
     req.flash("error", req.user.username + " cannot be deleted here");
-    res.redirect("/deletepre");
+    res.redirect("/auth/delete-pre");
   }
 };

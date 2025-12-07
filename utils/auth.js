@@ -11,7 +11,7 @@ const authenticateUser = async (req, res, next) => {
 
     if (!user) {
       req.flash("error", genericError);
-      return res.redirect("/login");
+      return res.redirect("/auth/login");
     }
 
     const auth = await user.authenticate(password);
@@ -20,7 +20,7 @@ const authenticateUser = async (req, res, next) => {
       return next();
     } else {
       req.flash("error", genericError);
-      return res.redirect("/login");
+      return res.redirect("/auth/login");
     }
   } catch (error) {
     console.error("Authentication error:", error);
@@ -30,7 +30,7 @@ const authenticateUser = async (req, res, next) => {
     } else {
       req.flash("error", "Authentication failed");
     }
-    return res.redirect("/login");
+    return res.redirect("/auth/login");
   }
 };
 

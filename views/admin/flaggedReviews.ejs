@@ -6,9 +6,48 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3>Flagged Reviews for Admin Review</h3>
-                    <a href="/blogim" class="btn btn-secondary">Back to Blog</a>
+                    <div>
+                        <a href="/admin" class="btn btn-outline-primary">Admin Dashboard</a>
+                        <a href="/blogim" class="btn btn-secondary">Back to Blog</a>
+                    </div>
                 </div>
                 <div class="card-body">
+                    <!-- Review Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h5>Total Flagged</h5>
+                                    <h2><%= flaggedReviews.length %></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-dark">
+                                <div class="card-body text-center">
+                                    <h5>High Spam (≥10)</h5>
+                                    <h2><%= flaggedReviews.filter(r => r.spamScore >= 10).length %></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-body text-center">
+                                    <h5>Moderate Spam (3-9)</h5>
+                                    <h2><%= flaggedReviews.filter(r => r.spamScore >= 3 && r.spamScore < 10).length %></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h5>Low Spam (1-2)</h5>
+                                    <h2><%= flaggedReviews.filter(r => r.spamScore >= 1 && r.spamScore < 3).length %></h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <% if (flaggedReviews.length === 0) { %>
                         <div class="alert alert-info">
                             <h4>No flagged reviews to review</h4>

@@ -1,0 +1,117 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Admin Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Quick Stats -->
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Posts</h5>
+                                    <h2 class="card-text"><%= posts.length %></h2>
+                                    <a href="/admin/posts" class="btn btn-light btn-sm">Manage Posts</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-dark">
+                                <div class="card-body">
+                                    <h5 class="card-title">Flagged Reviews</h5>
+                                    <h2 class="card-text"><%= flaggedReviewsCount %></h2>
+                                    <a href="/admin/flagged-reviews" class="btn btn-dark btn-sm">Review Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">All Reviews</h5>
+                                    <h2 class="card-text"><%= allReviewsCount %></h2>
+                                    <a href="/admin/all-reviews" class="btn btn-light btn-sm">Manage All</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Quick Actions</h5>
+                                    <div class="btn-group-vertical">
+                                        <a href="/admin/posts/new" class="btn btn-light btn-sm mb-2">Create New Post</a>
+                                        <a href="/blogim" class="btn btn-light btn-sm">View Blog</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Recent Posts</h5>
+                                </div>
+                                <div class="card-body">
+                                    <% if (recentPosts.length === 0) { %>
+                                        <p class="text-muted">No posts yet.</p>
+                                    <% } else { %>
+                                        <% recentPosts.slice(0, 5).forEach(post => { %>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div>
+                                                    <strong><%= post.title %></strong>
+                                                    <br>
+                                                    <small class="text-muted"><%= post.createdAt ? post.createdAt.toLocaleDateString() : 'Legacy post' %></small>
+                                                </div>
+                                                <div>
+                                                    <a href="/admin/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline-warning">Edit</a>
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Admin Links</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="/admin/posts" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-blog"></i> Manage All Posts
+                                        </a>
+                                        <a href="/admin/posts/new" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-plus"></i> Create New Post
+                                        </a>
+                                        <a href="/admin/flagged-reviews" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-flag"></i> Review Moderation
+                                            <% if (flaggedReviewsCount > 0) { %>
+                                                <span class="badge badge-warning float-right"><%= flaggedReviewsCount %></span>
+                                            <% } %>
+                                        </a>
+                                        <a href="/admin/all-reviews" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-comments"></i> Manage All Reviews
+                                            <% if (allReviewsCount > 0) { %>
+                                                <span class="badge badge-info float-right"><%= allReviewsCount %></span>
+                                            <% } %>
+                                        </a>
+                                        <a href="/blogim" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-home"></i> Back to Blog
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

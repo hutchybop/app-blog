@@ -1,0 +1,83 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>Post Management</h3>
+                    <div>
+                        <a href="/admin/posts/new" class="btn btn-primary">Create New Post</a>
+                        <a href="/admin/flagged-reviews" class="btn btn-warning">Review Flagged Reviews</a>
+                        <a href="/blogim" class="btn btn-secondary">Back to Blog</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <% if (posts.length === 0) { %>
+                        <div class="alert alert-info">
+                            <h4>No posts found</h4>
+                            <p>Start by creating your first blog post!</p>
+                        </div>
+                    <% } else { %>
+                        <!-- Sort options -->
+                        <div class="mb-3">
+                            <div class="btn-group" role="group">
+                                <a href="/admin/posts?sort=newest" class="btn <%= sortOrder === 'newest' ? 'btn-primary' : 'btn-outline-primary' %>">Newest First</a>
+                                <a href="/admin/posts?sort=oldest" class="btn <%= sortOrder === 'oldest' ? 'btn-primary' : 'btn-outline-primary' %>">Oldest First</a>
+                                <a href="/admin/posts?sort=numerical" class="btn <%= sortOrder === 'numerical' ? 'btn-primary' : 'btn-outline-primary' %>">Numerical Order</a>
+                            </div>
+                        </div>
+
+                        <!-- Posts table -->
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Post #</th>
+                                        <th>Title</th>
+                                        <th>Created</th>
+                                        <th>Reviews</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% posts.forEach(post => { %>
+                                        <tr>
+                                            <td><%= post.num %></td>
+                                            <td>
+                                                <a href="/blogim/<%= post._id %>" target="_blank">
+                                                    <%= post.title %>
+                                                </a>
+                                            </td>
+                                            <td><%= post.createdAt ? post.createdAt.toLocaleDateString() : 'Legacy post' %></td>
+                                            <td>
+                                                <span class="badge <%= post.reviews.length > 0 ? 'badge-primary' : 'badge-secondary' %>">
+                                                    <%= post.reviews.length %> reviews
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="/blogim/<%= post._id %>" class="btn btn-sm btn-outline-info" title="View Post">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="/admin/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline-warning" title="Edit Post">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="/admin/posts/<%= post._id %>?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post? This will also delete all associated reviews.')">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Post">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

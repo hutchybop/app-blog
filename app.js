@@ -31,6 +31,8 @@ const tnc = require("./tnc");
 const users = require("./controllers/users");
 const reviews = require("./controllers/reviews");
 const blogsIM = require("./controllers/blogsIM");
+const Review = require("./models/review");
+const BlogIM = require("./models/blogIM");
 const catchAsync = require("./utils/catchAsync");
 const {
   validateLogin,
@@ -211,17 +213,17 @@ app.get("/info", (req, res) => {
   });
 });
 
-// user routes
-app.get("/register", users.register);
+// auth routes (new /auth prefix)
+app.get("/auth/register", users.register);
 app.post(
-  "/register",
+  "/auth/register",
   registrationLimiter,
   validateRegister,
   catchAsync(users.registerPost),
 );
-app.get("/login", users.login);
+app.get("/auth/login", users.login);
 app.post(
-  "/login",
+  "/auth/login",
   authLimiter,
   validateLogin,
   require("./utils/auth").authenticateUser,
@@ -233,22 +235,22 @@ app.post(
     res.redirect(redirectUrl);
   }),
 );
-app.get("/logout", users.logout);
-app.get("/forgot", (req, res, next) => {
+app.get("/auth/logout", users.logout);
+app.get("/auth/forgot", (req, res, next) => {
   return users.forgot(req, res, next);
 });
 app.post(
-  "/forgot",
+  "/auth/forgot",
   passwordResetLimiter,
   validateForgot,
   catchAsync(users.forgotPost),
 );
-app.get("/reset/:token", users.reset);
-app.post("/reset/:token", validateReset, catchAsync(users.resetPost));
-app.get("/details", isLoggedIn, users.details);
-app.post("/details", validateDetails, catchAsync(users.detailsPost));
-app.get("/deletepre", isLoggedIn, users.deletePre);
-app.delete("/delete", isLoggedIn, validateDelete, users.delete);
+app.get("/auth/reset/:token", users.reset);
+app.post("/auth/reset/:token", validateReset, catchAsync(users.resetPost));
+app.get("/auth/details", isLoggedIn, users.details);
+app.post("/auth/details", validateDetails, catchAsync(users.detailsPost));
+app.get("/auth/delete-pre", isLoggedIn, users.deletePre);
+app.delete("/auth/delete", isLoggedIn, validateDelete, users.delete);
 
 // review routes
 app.post(
@@ -265,6 +267,28 @@ app.delete(
 );
 app.get("/blogim/:id/reviews", reviews.reviewLogin);
 
+// Admin dashboard route
+app.get(
+  "/admin",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(async (req, res) => {
+    const posts = await BlogIM.find().sort({ createdAt: -1 });
+    const flaggedReviews = await Review.find({ isFlagged: true });
+    const allReviews = await Review.find({});
+    const recentPosts = posts.slice(0, 5);
+
+    res.render("admin/dashboard", {
+      page: "Admin",
+      title: "Admin Dashboard",
+      posts,
+      recentPosts,
+      flaggedReviewsCount: flaggedReviews.length,
+      allReviewsCount: allReviews.length,
+    });
+  }),
+);
+
 // Admin routes for content moderation
 app.get(
   "/admin/flagged-reviews",
@@ -279,24 +303,36 @@ app.post(
   catchAsync(reviews.updateFlaggedReview),
 );
 
+// Admin routes for all reviews management
+app.get(
+  "/admin/all-reviews",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(reviews.allReviews),
+);
+app.post(
+  "/admin/all-reviews/:reviewId/delete",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(reviews.deleteReviewWithReason),
+);
+
+// Admin routes for post management
+app.get("/admin/posts", isLoggedIn, isAdmin, catchAsync(blogsIM.adminIndex));
+app.get("/admin/posts/new", isLoggedIn, isAdmin, catchAsync(blogsIM.new));
+app.post("/admin/posts", isLoggedIn, isAdmin, catchAsync(blogsIM.create));
+app.get("/admin/posts/:id/edit", isLoggedIn, isAdmin, catchAsync(blogsIM.edit));
+app.put("/admin/posts/:id", isLoggedIn, isAdmin, catchAsync(blogsIM.update));
+app.delete("/admin/posts/:id", isLoggedIn, isAdmin, catchAsync(blogsIM.delete));
+
 // home route - redirect to blog
 app.get("/", (req, res) => {
   res.redirect("/blogim");
 });
 
-// blogIM routes
+// blogIM routes (public only)
 app.get("/blogim", catchAsync(blogsIM.index));
-app.get(
-  "/blogim/pBsy6S3RgVhPg48HWZH7keaTI3EcwknE",
-  isLoggedIn,
-  isAdmin,
-  catchAsync(blogsIM.new),
-);
-app.post("/blogim", isLoggedIn, isAdmin, catchAsync(blogsIM.create));
 app.get("/blogim/:id", catchAsync(blogsIM.show));
-app.get("/blogim/:id/edit", isLoggedIn, isAdmin, catchAsync(blogsIM.edit));
-app.put("/blogim/:id", isLoggedIn, isAdmin, catchAsync(blogsIM.update));
-app.delete("/blogim/:id", isLoggedIn, isAdmin, catchAsync(blogsIM.delete));
 
 // Site-Map route
 app.get("/sitemap.xml", (req, res) => {

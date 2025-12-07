@@ -11,12 +11,12 @@
                             <h3 class="card-title">Login</h3>
                         </div>
                         <div>
-                            <a class='btn btn-primary btn-sm' href="/register">Register</a>
-                            <a class='btn btn-secondary btn-sm' href="/forgot">Forgot Password</a>
+                            <a class='btn btn-primary btn-sm' href="/auth/register">Register</a>
+                            <a class='btn btn-secondary btn-sm' href="/auth/forgot">Forgot Password</a>
                         </div>
                     </div>
                     
-                    <form action="/login" method="POST" class="validated-form" novalidate>
+                    <form action="/auth/login" method="POST" class="validated-form" novalidate>
                         <div class="form-group">
                             <label class="form-label" for="username">Username</label>
                             <input class="form-control" type="text" id="username" name="username" autofocus required>

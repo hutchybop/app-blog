@@ -11,11 +11,11 @@
                             <h3 class="card-title">Reset Password</h3>
                         </div>
                         <div>
-                            <a class='btn btn-primary btn-sm' href="/login">Back to Login</a>
+                            <a class='btn btn-primary btn-sm' href="/auth/login">Back to Login</a>
                         </div>
                     </div>
                     
-                    <form action="/reset/<%= token %>" method="POST" class="validated-form" novalidate>
+                    <form action="/auth/reset/<%= token %>" method="POST" class="validated-form" novalidate>
                         <div class="form-group">
                             <label class="form-label" for="password">New Password</label>
                             <input class="form-control" type="password" name="password" value="" placeholder="New password" autofocus required/>

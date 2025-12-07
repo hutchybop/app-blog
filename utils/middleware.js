@@ -41,7 +41,7 @@ module.exports.validateRegister = (req, res, next) => {
   // registerSchema is coming from the schemas.js file
   const { error } = registerSchema.validate(req.body);
   // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, "/register");
+  JoiFlashError(error, req, res, next, "/auth/register");
 };
 
 // Uses Joi to validate user input for logging in
@@ -50,7 +50,7 @@ module.exports.validateLogin = (req, res, next) => {
   // loginSchema is coming from the schemas.js file
   const { error } = loginSchema.validate(req.body);
   // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, "/login");
+  JoiFlashError(error, req, res, next, "/auth/login");
 };
 
 // Uses Joi to validate user input for forgot password form
@@ -61,7 +61,7 @@ module.exports.validateForgot = (req, res, next) => {
   const { error } = forgotSchema.validate(req.body);
   console.log("validation error:", error);
   // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, "/forgot");
+  JoiFlashError(error, req, res, next, "/auth/forgot");
 };
 
 // Uses Joi to validate user input for reset password form
@@ -70,7 +70,7 @@ module.exports.validateReset = (req, res, next) => {
   // resetSchema is coming from the schemas.js file
   const { error } = resetSchema.validate(req.body);
   // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, `/reset/${req.params.token}`);
+  JoiFlashError(error, req, res, next, `/auth/reset/${req.params.token}`);
 };
 
 // Uses Joi to validate user input for changing details
@@ -79,7 +79,7 @@ module.exports.validateDetails = (req, res, next) => {
   // detailsSchema is coming from the schemas.js file
   const { error } = detailsSchema.validate(req.body);
   // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, "/details");
+  JoiFlashError(error, req, res, next, "/auth/details");
 };
 
 // Uses Joi to validate user input for changing details
@@ -88,7 +88,7 @@ module.exports.validateDelete = (req, res, next) => {
   // deleteSchema is coming from the schemas.js file
   const { error } = deleteSchema.validate(req.body);
   // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, "/details");
+  JoiFlashError(error, req, res, next, "/auth/details");
 };
 
 // Uses Joi to validate user input for review form
@@ -113,7 +113,7 @@ module.exports.isLoggedIn = (req, res, next) => {
   ) {
     req.session.returnTo = req.originalUrl;
     req.flash("error", "You must be signed in");
-    return res.redirect("/login");
+    return res.redirect("/auth/login");
   }
   next();
 };
@@ -141,7 +141,7 @@ module.exports.populateUser = async (req, res, next) => {
 
 // Helper function to check if user is admin
 const isAdminUser = (user) => {
-  return user && (user.role === "admin" || user.username === "hutchybop");
+  return user && user.role === "admin";
 };
 
 // Middleware to check if user is admin

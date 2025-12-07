@@ -1,4 +1,4 @@
-const { BlogIM } = require("../models/blogIM");
+const BlogIM = require("../models/blogIM");
 
 // INDEX - BlogIm (get)
 module.exports.index = async (req, res) => {
@@ -19,6 +19,27 @@ module.exports.index = async (req, res) => {
   });
 };
 
+// ADMIN INDEX - BlogIM for admin management (get)
+module.exports.adminIndex = async (req, res) => {
+  let posts = await BlogIM.find().sort({ createdAt: -1 });
+  const sortOrder = req.query.sort || "newest";
+
+  if (sortOrder === "oldest") {
+    posts.sort((a, b) => a.num.toString().localeCompare(b.num.toString()));
+  } else if (sortOrder === "newest") {
+    posts.sort((a, b) => b.num.toString().localeCompare(a.num.toString()));
+  } else {
+    posts.sort((a, b) => a.num.toString().localeCompare(b.num.toString()));
+  }
+
+  res.render("admin/posts", {
+    page: "Admin",
+    title: "Admin - Post Management",
+    posts,
+    sortOrder,
+  });
+};
+
 // NEW - BlogIM (get)
 module.exports.new = async (req, res) => {
   // Creates an array of num from the IM posts and chooses the biggest number
@@ -29,13 +50,33 @@ module.exports.new = async (req, res) => {
   }
   let num = Math.max.apply(Math, nums);
 
-  res.render("blogim/new", { page: "Blog", title: "Create BlogIM", num });
+  // Check if this is an admin route
+  const isAdminRoute = req.originalUrl.includes("/admin/");
+
+  if (isAdminRoute) {
+    res.render("admin/new", {
+      page: "Admin",
+      title: "Admin - Create Post",
+      num,
+    });
+  } else {
+    res.render("blogim/new", { page: "Blog", title: "Create BlogIM", num });
+  }
 };
 
 // CREATE - BlogIM (post)
 module.exports.create = async (req, res) => {
   const newPost = await BlogIM.create(req.body);
-  res.redirect(`/blogim/${newPost._id}`);
+
+  // Check if this is an admin route
+  const isAdminRoute = req.originalUrl.includes("/admin/");
+
+  if (isAdminRoute) {
+    req.flash("success", "Post created successfully!");
+    res.redirect("/admin/posts");
+  } else {
+    res.redirect(`/blogim/${newPost._id}`);
+  }
 };
 
 // SHOW - BlogIM (get)
@@ -44,6 +85,7 @@ module.exports.show = async (req, res) => {
     path: "reviews",
     populate: {
       path: "author",
+      select: "username email",
     },
   });
   res.render("blogim/show", { page: "Blog", title: post.title, post });
@@ -53,19 +95,43 @@ module.exports.show = async (req, res) => {
 module.exports.edit = async (req, res) => {
   const { id } = req.params;
   const post = await BlogIM.findById(id);
-  res.render("blogim/edit", { page: "Blog", post });
+
+  res.render("admin/edit", {
+    page: "Admin",
+    title: "Admin - Edit Post",
+    post,
+    formAction: `/admin/posts/${id}?_method=PUT`,
+  });
 };
 
 // UPDATE - BlogIM (put)
 module.exports.update = async (req, res) => {
   const { id } = req.params;
   const updatedPost = await BlogIM.findByIdAndUpdate(id, req.body);
-  res.redirect(`/blogim/${updatedPost.id}`);
+
+  // Check if this is an admin route
+  const isAdminRoute = req.originalUrl.includes("/admin/");
+
+  if (isAdminRoute) {
+    req.flash("success", "Post updated successfully!");
+    res.redirect("/admin/posts");
+  } else {
+    res.redirect(`/blogim/${updatedPost.id}`);
+  }
 };
 
 // DELETE - BlogIM (delete)
 module.exports.delete = async (req, res) => {
   const { id } = req.params;
   await BlogIM.findByIdAndRemove(id);
-  res.redirect("/blogim");
+
+  // Check if this is an admin route
+  const isAdminRoute = req.originalUrl.includes("/admin/");
+
+  if (isAdminRoute) {
+    req.flash("success", "Post deleted successfully!");
+    res.redirect("/admin/posts");
+  } else {
+    res.redirect("/blogim");
+  }
 };

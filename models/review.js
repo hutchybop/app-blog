@@ -7,6 +7,10 @@ const ReviewSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+  blogIM: {
+    type: Schema.Types.ObjectId,
+    ref: "BlogIM",
+  },
   isFlagged: {
     type: Boolean,
     default: false,
