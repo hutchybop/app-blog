@@ -27,7 +27,14 @@ const {
 // database lookup for blockedIPs
 const tnc = require("./tnc");
 
+// Required for recaptcha
+const Recaptcha = require("express-recaptcha").RecaptchaV2;
+const recaptcha = new Recaptcha(process.env.SITEKEY, process.env.SECRETKEY, {
+  callback: "cb",
+});
+
 // requires modules.exports
+const policy = require("./controllers/policy");
 const users = require("./controllers/users");
 const reviews = require("./controllers/reviews");
 const blogsIM = require("./controllers/blogsIM");
@@ -35,6 +42,7 @@ const admin = require("./controllers/admin");
 
 const catchAsync = require("./utils/catchAsync");
 const {
+  validateTandC,
   validateLogin,
   validateRegister,
   validateForgot,
@@ -113,6 +121,8 @@ const scriptSrcUrls = [
   "https://cdn.jsdelivr.net",
   "https://cdn.jsdelivr.net/",
   "https://code.jquery.com/",
+  "https://www.google.com/recaptcha/",
+  "https://www.gstatic.com/recaptcha/",
 ];
 const styleSrcUrls = [
   "https://kit-free.fontawesome.com/",
@@ -131,6 +141,8 @@ const connectSrcUrls = [
   "https://cdnjs.cloudflare.com/",
   "https://fonts.googleapis.com/",
   "https://fonts.gstatic.com",
+  "https://www.google.com/recaptcha/",
+  "https://www.gstatic.com/recaptcha/",
 ];
 const fontSrcUrls = [
   "https://cdnjs.cloudflare.com/",
@@ -149,6 +161,7 @@ app.use(
       objectSrc: [],
       imgSrc: ["'self'", "blob:", "data:", ...imgSrcUrls],
       fontSrc: ["'self'", ...fontSrcUrls],
+      frameSrc: ["'self'", "https://www.google.com/recaptcha/"],
     },
   }),
 );
@@ -208,10 +221,20 @@ app.use(async (req, res, next) => {
 app.get("/info", (req, res) => {
   res.render("info", {
     title: "hutchybop.co.uk Information Page",
-    page: "Info",
     tnc: tnc.tnc,
   });
 });
+
+// policy routes
+app.get("/policy/cookie-policy", policy.cookiePolicy);
+app.get("/policy/tandc", recaptcha.middleware.render, policy.tandc);
+app.post(
+  "/policy/tandc",
+  recaptcha.middleware.verify,
+  validateTandC,
+  policy.tandcPost,
+);
+app.get("/policy/logs", catchAsync(policy.logs));
 
 // auth routes (new /auth prefix)
 app.get("/auth/register", users.register);

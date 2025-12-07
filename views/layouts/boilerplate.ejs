@@ -58,11 +58,14 @@
     />
 
     <!-- Personal CSS -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/stylesheets/<%= page %>.css"
-    />
+    <% if (typeof page !== 'undefined') { %>
+      <link
+        rel="stylesheet"
+        type="text/css"
+        href="/stylesheets/<%= page %>.css"
+      />
+    <% } %>
+    
     <link
       rel="stylesheet"
       type="text/css"
@@ -80,6 +83,22 @@
   <body class="d-flex flex-column vh-100">
     <%- include('../partials/navbar')%>
 
+    <!-- Cookie Alert -->
+    <div class="container mt-3">
+      <div class="row">
+        <div class="col">
+          <div id="cookieAlert" class="alert alert-danger alert-dismissible fade show position-relative" role="alert">
+            This site uses essential cookies for functionality. By continuing to use our site, you agree to their use. 
+            <br>
+            <a href="/policy/cookie-policy">Cookie Policy</a>
+            <button id="cookieAlertBtn" type="button" class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" aria-label="Accept cookies">
+                <i class="fa-regular fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <main class="container mt-3">
       <%- include('../partials/flash') %> <%- body %>
     </main>
@@ -94,7 +113,10 @@
     ></script>
 
     <!-- Personal js -->
-    <script type="text/javascript" src="/javascripts/<%= page %>.js "></script>
+    <% if (typeof page !== 'undefined') { %>
+      <script type="text/javascript" src="/javascripts/<%= page %>.js "></script>
+    <% } %>
+    <script type="text/javascript" src="/javascripts/boilerplate.js "></script>
     <script type="text/javascript" src="/javascripts/validateForms.js"></script>
 
   </body>

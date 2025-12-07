@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Review = require("../models/review");
 const {
+  tandcSchema,
   loginSchema,
   registerSchema,
   forgotSchema,
@@ -9,6 +10,7 @@ const {
   deleteSchema,
   reviewSchema,
 } = require("../models/schemas.js");
+const catchAsync = require("./catchAsync");
 
 // Function to send a Flash error instead of re-directing to error page
 const JoiFlashError = (error, req, res, next, url) => {
@@ -34,6 +36,14 @@ const JoiFlashError = (error, req, res, next, url) => {
     return next();
   }
 };
+
+// Uses Joi to validate user input for the contact form
+module.exports.validateTandC = catchAsync(async (req, res, next) => {
+  // tandcSchema is coming from the schemas.js file
+  const { error } = tandcSchema.validate(req.body);
+  // JoiFlashError function is defined above
+  JoiFlashError(error, req, res, next, "/policy/tandc");
+});
 
 // Uses Joi to validate user input for registration
 // registerSchema is coming from the schemas.js file

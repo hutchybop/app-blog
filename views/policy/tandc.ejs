@@ -1,0 +1,203 @@
+<% layout('layouts/boilerplate')%>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h2 id="tancTop" class="cardTitles">Terms and Conditions</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Introduction</h4>
+                            <div class="cardBodies">
+                                Welcome to slapp.longrunner.co.uk. By accessing and using our website, you agree to comply with and be 
+                                bound by these Terms and Conditions. Please read them carefully.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">About the Website</h4>
+                            <div class="cardBodies">
+                                slapp.longrunner.co.uk is a personal meal and recipe management application where users can manage 
+                                their meals, recipes, ingredients, and shopping lists. The website offers a personalized experience 
+                                by storing and displaying your information, such as account details, meal plans, and related data.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">User Obligations</h4>
+
+                            <div class="ml-4 mt-2">
+                                <div class="cardSubHeadings">
+                                    Account Responsibilities:
+                                </div>
+                                <div class="cardBodies">
+                                    If you create an account on slapp.longrunner.co.uk, you are responsible for maintaining the confidentiality 
+                                    of your account information, including your password, and for all activities that occur under your account. 
+                                    You agree to notify us immediately of any unauthorized use of your account or any other breach of security.
+                                </div>
+                                <div class="cardSubHeadings">
+                                    Appropriate Use:
+                                </div>
+                                <div class="cardBodies">
+                                    Use the website responsibly and respect other users. You agree not to engage in any behavior that 
+                                    disrupts the experience for others or compromises the security and integrity of the website.
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Recipe Disclaimer</h4>
+                            <div class="cardBodies">
+                                When you create an account on slapp.longrunner.co.uk, we may provide you with recipes as part of our service. 
+                                Please note that these recipes are provided for your convenience and personal use. We make no warranties or 
+                                representations regarding the quality, edibility, or suitability of the recipes or food prepared from them.
+                            </div>
+                            <br>
+                            <div class="cardBodies">
+                                You are solely responsible for ensuring that any food prepared from the recipes is safe and suitable for 
+                                consumption. We do not accept any liability for any issues or concerns arising from the use of these recipes, 
+                                including but not limited to health or safety concerns.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Intellectual Property</h4>
+                            <div class="cardBodies">
+                                The content, design, and code of slapp.longrunner.co.uk are owned by the website creator. You may not reproduce, 
+                                distribute, or use any part of the website or its content without prior written consent.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Data Protection</h4>
+                            <div class="cardBodies">
+                                We do not collect any personal data from users directly, except as necessary to operate the site. However, 
+                                our website uses cookies for essential functionality, including third-party cookies from Google to implement 
+                                reCAPTCHA for security purposes. These cookies help protect our website from spam and abuse by verifying that 
+                                users are human and not automated bots.
+                            </div>
+                            <div class="cardBodies">
+                                Our use of cookies is detailed in our <a href="/policy/cookie-policy" target="_blank" rel="noopener noreferrer">Cookie Policy</a>. 
+                                By using our website, you consent 
+                                to the use of these cookies, including the third-party cookies from Google as described.
+                            </div>
+                            <div class="cardBodies">
+                                Please note that Google may collect information via these cookies as part of the reCAPTCHA service. For more 
+                                details on how Google collects and processes data, please refer to Google's 
+                                <a href="https://policies.google.com/privacy?hl=en-US" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Limitation of Liability</h4>
+                            <div class="cardBodies">
+                                slapp.longrunner.co.uk is provided on an "as is" basis. We make no warranties or representations, 
+                                express or implied, regarding the website’s availability, functionality, or accuracy of content. 
+                                We are not liable for any direct, indirect, incidental, or consequential damages arising from your use of the website. 
+                                Additionally, the website may be taken down or modified at any time without prior notice, and you should not rely on its 
+                                continued availability.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Dispute Resolution</h4>
+                            <div class="cardBodies">
+                                These Terms and Conditions are governed by and construed in accordance with the laws of the United Kingdom. Any 
+                                disputes arising out of or in connection with these terms shall be subject to the exclusive jurisdiction 
+                                of the courts of the United Kingdom.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Changes to Terms</h4>
+                            <div class="cardBodies">
+                                We reserve the right to modify these Terms and Conditions at any time. Any changes will be posted on this 
+                                page with an updated effective date. It is your responsibility to review these Terms periodically.
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <h4 class="cardHeadings">Contact Us</h4>
+                            <div class="cardBodies">
+                                For any questions or concerns regarding these Terms and Conditions, please contact us through the 
+                                contact form located at the bottom of this page.
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+                    <% if(typeof currentUser === 'undefined') {%>
+                        <a id="backBtn" class="btn btn-primary" href="/auth/login">Back to Login</a>
+                    <% }else{ %>
+                        <a id="backBtn" class="btn btn-primary" href="/auth/details">Back to Account</a>
+                    <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mt-3 mb-3">
+
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div>
+                            <h3 id="contactForm" class="card-title">Contact Form</h3>
+                        </div>
+                    </div>
+                    
+                    <form action="/policy/tandc" method="POST" class="validated-form" novalidate>
+                        <div class="form-group">
+                            <label class="form-label" for="name">Name</label>
+                            <input class="form-control" type="text" id="name" name="name" aautocomplete="name" required>
+                            <div class="invalid-feedback">
+                                Please enter a name
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email</label>
+                            <input class="form-control" type="email" id="email" name="email" autocomplete="email" required>
+                            <div class="invalid-feedback">
+                                Please enter your email address
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="message">What do you want to say?</label>
+                            <textarea class="form-control" name="message" id="message" cols="30" rows="15" required></textarea>
+                            <div class="invalid-feedback">
+                                Please enter your text
+                            </div>
+                        </div>
+                        <div class="mb-2 mt-2">
+                            <%- captcha %>
+                        </div>
+                        <button class="btn btn-success btn-block" id="submitBtn" disabled>Send</button>
+                    </form>
+                    <% if(typeof currentUser === 'undefined') {%>
+                        <a id="backBtn" class="btn btn-primary mt-2" href="/auth/login">Back to Login</a>
+                    <% }else{ %>
+                        <a id="backBtn" class="btn btn-primary mt-2" href="/auth/details">Back to Account</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    const submitBtn = document.getElementById('submitBtn')
+
+    function cb(token) {
+        submitBtn.disabled = false
+    }
+        
+</script>

@@ -73,7 +73,7 @@ module.exports.logout = async (req, res) => {
 
 // forgot - user (GET)
 module.exports.forgot = (req, res) => {
-  res.render("users/forgot", { title: "Password Reset", page: "Forgot" });
+  res.render("users/forgot", { title: "Password Reset" });
 };
 
 // forgot - user (POST)
@@ -129,7 +129,6 @@ module.exports.reset = async (req, res) => {
   res.render("users/reset", {
     token: req.params.token,
     title: "Reset Your Password",
-    page: "Reset",
   });
 };
 
@@ -189,7 +188,6 @@ module.exports.details = (req, res) => {
     username,
     email,
     title: "Reset Your Email Adrress",
-    page: "Details",
   });
 };
 
@@ -284,7 +282,6 @@ module.exports.deletePre = (req, res) => {
     res.render("users/deletepre", {
       user,
       title: "Confirm DELETE account",
-      page: "Delete",
     });
   } else {
     req.flash("error", req.user.username + " cannot be deleted here");

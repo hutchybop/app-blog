@@ -10,7 +10,6 @@ module.exports.dashboard = async (req, res) => {
   const recentPosts = posts.slice(0, 5);
 
   res.render("admin/dashboard", {
-    page: "Admin",
     title: "Admin Dashboard",
     posts,
     recentPosts,
@@ -35,7 +34,6 @@ module.exports.posts = async (req, res) => {
   }
 
   res.render("admin/posts", {
-    page: "Admin",
     title: "Admin - Post Management",
     posts,
     sortOrder,
@@ -59,7 +57,6 @@ module.exports.newPost = async (req, res) => {
   const allReviews = await Review.find({});
 
   res.render("admin/new", {
-    page: "Admin",
     title: "Admin - Create Post",
     num,
     posts,
@@ -86,7 +83,6 @@ module.exports.editPost = async (req, res) => {
   const posts = await BlogIM.find();
 
   res.render("admin/edit", {
-    page: "Admin",
     title: "Admin - Edit Post",
     post,
     posts,
@@ -127,7 +123,6 @@ module.exports.flaggedReviews = async (req, res) => {
     flaggedReviewsCount: flaggedReviews.length,
     allReviewsCount: allReviews.length,
     title: "Flagged Reviews - Admin",
-    page: "Admin",
   });
 };
 
@@ -180,7 +175,6 @@ module.exports.allReviews = async (req, res) => {
     flaggedReviewsCount: flaggedReviews.length,
     allReviewsCount: allReviews.length,
     title: "All Reviews - Admin",
-    page: "Admin",
   });
 };
 

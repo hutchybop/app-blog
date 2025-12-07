@@ -62,3 +62,10 @@ module.exports.reviewSchema = Joi.object({
     body: Joi.string().required().escapeHTML(),
   }).required(),
 });
+
+module.exports.tandcSchema = Joi.object({
+  name: Joi.string().required().escapeHTML(),
+  message: Joi.string().required().escapeHTML(),
+  email: Joi.string().email().required(),
+  "g-recaptcha-response": Joi.string().allow(null, ""),
+}).required();
