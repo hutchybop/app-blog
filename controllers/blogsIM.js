@@ -1,4 +1,5 @@
 const BlogIM = require("../models/blogIM");
+const Review = require("../models/review");
 
 // INDEX - BlogIm (get)
 module.exports.index = async (req, res) => {
@@ -23,6 +24,8 @@ module.exports.index = async (req, res) => {
 module.exports.adminIndex = async (req, res) => {
   let posts = await BlogIM.find().sort({ createdAt: -1 });
   const sortOrder = req.query.sort || "newest";
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
 
   if (sortOrder === "oldest") {
     posts.sort((a, b) => a.num.toString().localeCompare(b.num.toString()));
@@ -37,6 +40,8 @@ module.exports.adminIndex = async (req, res) => {
     title: "Admin - Post Management",
     posts,
     sortOrder,
+    flaggedReviewsCount: flaggedReviews.length,
+    allReviewsCount: allReviews.length,
   });
 };
 
@@ -50,6 +55,10 @@ module.exports.new = async (req, res) => {
   }
   let num = Math.max.apply(Math, nums);
 
+  // Get review counts for admin pages
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
+
   // Check if this is an admin route
   const isAdminRoute = req.originalUrl.includes("/admin/");
 
@@ -58,6 +67,9 @@ module.exports.new = async (req, res) => {
       page: "Admin",
       title: "Admin - Create Post",
       num,
+      posts,
+      flaggedReviewsCount: flaggedReviews.length,
+      allReviewsCount: allReviews.length,
     });
   } else {
     res.render("blogim/new", { page: "Blog", title: "Create BlogIM", num });
@@ -96,10 +108,18 @@ module.exports.edit = async (req, res) => {
   const { id } = req.params;
   const post = await BlogIM.findById(id);
 
+  // Get review counts for admin pages
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
+  const posts = await BlogIM.find();
+
   res.render("admin/edit", {
     page: "Admin",
     title: "Admin - Edit Post",
     post,
+    posts,
+    flaggedReviewsCount: flaggedReviews.length,
+    allReviewsCount: allReviews.length,
     formAction: `/admin/posts/${id}?_method=PUT`,
   });
 };

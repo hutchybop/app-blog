@@ -13,6 +13,22 @@ img {
   color: white;
 }
 
+.jumbotron,
+.bg-light.p-5.rounded-3 {
+  background: #e51937 !important;
+  color: white !important;
+}
+
+.jumbotron h1,
+.bg-light.p-5.rounded-3 h1 {
+  color: white !important;
+}
+
+.jumbotron p,
+.bg-light.p-5.rounded-3 p {
+  color: white !important;
+}
+
 #review {
   background: #0b4019;
   color: white;

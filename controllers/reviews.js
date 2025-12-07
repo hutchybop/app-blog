@@ -197,8 +197,14 @@ module.exports.flaggedReviews = async (req, res) => {
     .populate("author", "username email")
     .sort({ createdAt: -1 });
 
+  const allReviews = await Review.find({});
+  const posts = await BlogIM.find();
+
   res.render("admin/flaggedReviews", {
     flaggedReviews,
+    posts,
+    flaggedReviewsCount: flaggedReviews.length,
+    allReviewsCount: allReviews.length,
     title: "Flagged Reviews - Admin",
     page: "Admin",
   });
@@ -245,8 +251,14 @@ module.exports.allReviews = async (req, res) => {
     .populate("blogIM", "title")
     .sort({ createdAt: -1 });
 
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const posts = await BlogIM.find();
+
   res.render("admin/allReviews", {
     allReviews,
+    posts,
+    flaggedReviewsCount: flaggedReviews.length,
+    allReviewsCount: allReviews.length,
     title: "All Reviews - Admin",
     page: "Admin",
   });
