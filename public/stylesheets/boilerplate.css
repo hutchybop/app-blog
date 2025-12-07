@@ -10,3 +10,9 @@ body {
 .navbar {
   display: block;
 }
+
+/* Auth card images */
+.card-img-top {
+  height: 250px;
+  object-fit: cover;
+}

@@ -31,8 +31,8 @@ const tnc = require("./tnc");
 const users = require("./controllers/users");
 const reviews = require("./controllers/reviews");
 const blogsIM = require("./controllers/blogsIM");
-const Review = require("./models/review");
-const BlogIM = require("./models/blogIM");
+const admin = require("./controllers/admin");
+
 const catchAsync = require("./utils/catchAsync");
 const {
   validateLogin,
@@ -268,39 +268,20 @@ app.delete(
 app.get("/blogim/:id/reviews", reviews.reviewLogin);
 
 // Admin dashboard route
-app.get(
-  "/admin",
-  isLoggedIn,
-  isAdmin,
-  catchAsync(async (req, res) => {
-    const posts = await BlogIM.find().sort({ createdAt: -1 });
-    const flaggedReviews = await Review.find({ isFlagged: true });
-    const allReviews = await Review.find({});
-    const recentPosts = posts.slice(0, 5);
-
-    res.render("admin/dashboard", {
-      page: "Admin",
-      title: "Admin Dashboard",
-      posts,
-      recentPosts,
-      flaggedReviewsCount: flaggedReviews.length,
-      allReviewsCount: allReviews.length,
-    });
-  }),
-);
+app.get("/admin", isLoggedIn, isAdmin, catchAsync(admin.dashboard));
 
 // Admin routes for content moderation
 app.get(
   "/admin/flagged-reviews",
   isLoggedIn,
   isAdmin,
-  catchAsync(reviews.flaggedReviews),
+  catchAsync(admin.flaggedReviews),
 );
 app.post(
   "/admin/flagged-reviews/:reviewId/:action",
   isLoggedIn,
   isAdmin,
-  catchAsync(reviews.updateFlaggedReview),
+  catchAsync(admin.updateFlaggedReview),
 );
 
 // Admin routes for all reviews management
@@ -308,22 +289,32 @@ app.get(
   "/admin/all-reviews",
   isLoggedIn,
   isAdmin,
-  catchAsync(reviews.allReviews),
+  catchAsync(admin.allReviews),
 );
 app.post(
   "/admin/all-reviews/:reviewId/delete",
   isLoggedIn,
   isAdmin,
-  catchAsync(reviews.deleteReviewWithReason),
+  catchAsync(admin.deleteReviewWithReason),
 );
 
 // Admin routes for post management
-app.get("/admin/posts", isLoggedIn, isAdmin, catchAsync(blogsIM.adminIndex));
-app.get("/admin/posts/new", isLoggedIn, isAdmin, catchAsync(blogsIM.new));
-app.post("/admin/posts", isLoggedIn, isAdmin, catchAsync(blogsIM.create));
-app.get("/admin/posts/:id/edit", isLoggedIn, isAdmin, catchAsync(blogsIM.edit));
-app.put("/admin/posts/:id", isLoggedIn, isAdmin, catchAsync(blogsIM.update));
-app.delete("/admin/posts/:id", isLoggedIn, isAdmin, catchAsync(blogsIM.delete));
+app.get("/admin/posts", isLoggedIn, isAdmin, catchAsync(admin.posts));
+app.get("/admin/posts/new", isLoggedIn, isAdmin, catchAsync(admin.newPost));
+app.post("/admin/posts", isLoggedIn, isAdmin, catchAsync(admin.createPost));
+app.get(
+  "/admin/posts/:id/edit",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(admin.editPost),
+);
+app.put("/admin/posts/:id", isLoggedIn, isAdmin, catchAsync(admin.updatePost));
+app.delete(
+  "/admin/posts/:id",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(admin.deletePost),
+);
 
 // home route - redirect to blog
 app.get("/", (req, res) => {
