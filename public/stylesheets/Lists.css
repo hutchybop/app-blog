@@ -1,0 +1,56 @@
+.moveAlert {
+  display: none;
+}
+#recipe {
+  white-space: pre-line;
+}
+.input-group-prepend {
+  width: 95px;
+}
+.input-group-text {
+  width: 100%;
+}
+#listName {
+  width: 170px;
+}
+#selection input {
+  border: 0;
+}
+.qty {
+  width: 17%;
+  margin-right: 7px;
+}
+.ingredientName {
+  width: 62%;
+  margin-right: 3px;
+}
+.userIng .qty {
+  width: 17%;
+  margin-right: 10px;
+}
+.userIng .ingredientName {
+  width: 62%;
+  margin-right: 6px;
+}
+.fa-trash-alt {
+  color: red;
+}
+.fa-plus {
+  color: green;
+}
+.fas {
+  margin-left: 3px;
+  /* font-size: 2em; */
+}
+.dayMeal {
+  color: #ff6f91;
+}
+input[type="checkbox"]:checked + label.strikethrough {
+  text-decoration: line-through;
+}
+#defaultSpan {
+  color: #ff6f91;
+}
+.fas:hover {
+  font-size: 1.3em;
+}

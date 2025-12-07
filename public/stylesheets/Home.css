@@ -1,0 +1,61 @@
+body {
+  font-family: "Yanone Kaffeesatz", sans-serif;
+}
+
+.jumbotron {
+  color: white;
+  background: #e51937;
+}
+
+.fa-fighter-jet {
+  color: #e51937;
+}
+
+.card-title {
+  text-align: center;
+}
+
+.caption {
+  text-align: center;
+}
+
+.postText {
+  opacity: 1 !important;
+  background: -webkit-linear-gradient(#333, #eee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  overflow: hidden;
+  width: inherit;
+  height: 120px;
+}
+
+.card-img-top {
+  max-height: 350px;
+}
+
+@media screen and (max-width: 1024px) {
+  img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 16px;
+    float: left;
+    margin-right: 16px;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    width: 50%;
+    height: auto;
+    margin-bottom: 16px;
+    float: left;
+    margin-right: 16px;
+  }
+}

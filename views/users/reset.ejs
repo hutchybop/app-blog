@@ -1,0 +1,46 @@
+<% layout('layouts/boilerplate')%>
+
+<div class="container d-flex justify-content-center align-items-center mt-4 mb-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <img src="/images/forgotPassword.jpeg" alt="" class="card-img-top" />
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="mr-auto">
+                            <h3 class="card-title">Reset Password</h3>
+                        </div>
+                        <div>
+                            <a class='btn btn-primary btn-sm' href="/login">Back to Login</a>
+                        </div>
+                    </div>
+                    
+                    <form action="/reset/<%= token %>" method="POST" class="validated-form" novalidate>
+                        <div class="form-group">
+                            <label class="form-label" for="password">New Password</label>
+                            <input class="form-control" type="password" name="password" value="" placeholder="New password" autofocus required/>
+                            <div class="invalid-feedback">
+                                Please provide a new Password
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label class="form-label" for="confirm_password">Confirm Password</label>
+                            <input class="form-control" type="password" name="confirm_password" value="" placeholder="Confirm password" required/>
+                            <div class="invalid-feedback">
+                                Please confirm Password
+                            </div>
+                            <div class="invalid-feedback" id="password-mismatch">
+                                Passwords do not match
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                          </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

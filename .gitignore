@@ -1,0 +1,46 @@
+# ==============Only update appDeploy/.gitignore-template not app spefic .gitingnore files===============
+# ==============If updated, run appDeploy/syncGit.sh===============
+# ;-
+
+# node modules
+node_modules/
+
+# enviroment variables
+.env
+
+# system files
+.DS_Store
+
+# logging files
+output*.txt
+output*.log
+
+# TODO file
+TODO.js
+
+# monogdb dumps
+dump/
+
+# Other possible files
+*.log
+*.bak
+*.swp
+*.swo
+Old_Versions/
+DB_Backups/
+newServerScripts/
+serverScripts/
+Posts/
+coverage/
+dist/
+build/
+.vscode/
+.idea/
+updateAll.sh
+Thumbs.db
+*.test.js
+*.cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+push.sh

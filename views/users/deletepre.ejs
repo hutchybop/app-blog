@@ -1,0 +1,55 @@
+<% layout('layouts/boilerplate')%>
+
+<div class="container d-flex justify-content-center align-items-center mt-4 mb-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">You are about to DELETE your account</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    You will lose all your information from hutchybop.co.uk for:
+                                </li>
+                                <li class="list-group-item">
+                                    Username: <%=user.username%>
+                                </li>
+                                <li class="list-group-item">
+                                    Email: <%=user.email%>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item">
+                            This is irreversible
+                        </li>
+                        
+                        <li class="list-group-item">
+                            All reviews will be deleted
+                        </li>
+                        <li class="list-group-item">
+                            All shopping lists will be deleted
+                        </li>
+                        <li class="list-group-item">
+                            Please enter your password and click below to confirm this is what you want.
+                        </li>
+                    </ul>
+                </div>
+                    <form id="delete" action="/delete?_method=DELETE" method='Post'>
+                        <div class="form-group mb-0">
+                            <label class="form-label ml-2" for="password">Password</label>
+                            <input class="form-control" type="password" id="password" name="password" autofocus required>
+                            <div class="invalid-feedback">
+                                Please enter your password to confirm
+                            </div>
+                            <button form="delete" class="btn btn-danger btn-block" type="submit">DELETE account</button>
+                        </div>
+                            
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

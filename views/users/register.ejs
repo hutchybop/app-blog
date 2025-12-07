@@ -1,0 +1,141 @@
+<% layout('layouts/boilerplate')%>
+
+<div class="container d-flex justify-content-center align-items-center mt-4 mb-3">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        A few notes before you create an account
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>
+                            There is now a password recovery function if you forgot yours. This works by using the email address you registered with.
+                        </li>
+                        <li>
+                            You will be given a selection of meals that you can do what you want with, delete, use,
+                            edit...
+                        </li>
+                        <li>
+                            This is a 'hobbist' website built solely for personal use and not be be relied up on.
+                        </li>
+                        <li>
+                            There will be bugs and things that will not work as they should. This is an on going
+                            project.
+                        </li>
+                        <li>
+                            If you want to report an error, please contact me using the details in the footer.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="mr-auto">
+                            <h3 class="card-title">Register</h3>
+                        </div>
+                        <div>
+                            <a class='btn btn-primary btn-sm' href="/login">Login</a>
+                        </div>
+                    </div>
+
+                    <div id="regAlert" class="regAlert alert alert-dismissible fade show">
+                        <span id='regMsg'></span>
+                        <button type="button" class="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <form id="reg" action="/register" method="POST" class="validated-form" novalidate>
+                        <div class="form-group">
+                            <label class="form-label" for="username">Username</label>
+                            <input class="form-control" type="text" id="username" name="username" required autofocus>
+                            <div class="invalid-feedback">
+                                Please provide a username
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email</label>
+                            <input class="form-control" type="email" id="email" name="email" required>
+                            <div class="invalid-feedback">
+                                Please provide an email address
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="password">Password</label>
+                            <input class="form-control" type="password" id="password" name="password" required>
+                            <div class="invalid-feedback">
+                                Please provide a password
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="confirm_password">Confirm Password</label>
+                            <input class="form-control" type="password" id="confirm" name="confirm_password" required>
+                            <div class="invalid-feedback">
+                                Please confirm your password
+                            </div>
+                            <div class="invalid-feedback" id="password-mismatch">
+                                Passwords do not match
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3 pl-0">
+                            <input type="checkbox" name="tnc" id="tncCheck" value="checked" required>
+                            <label class="form-check-label" for="tncCheck">Accept <a href="/info#tnc">Terms and
+                                    Condtions</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                You must accept the Terms and Conditions
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success btn-block">Register</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    const tncCheck = document.querySelector("#tncCheck")
+    const reg = document.querySelector("#reg")
+
+    reg.addEventListener("submit", function (e) {
+
+        // BootStap client side form validation
+        if (reg.checkValidity() === false) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+
+            // removes any alerts not closed
+            regAlert.classList.add('regAlert')
+
+            if (!tncCheck.checked) {
+                e.preventDefault()
+                regMsg.innerText = 'You must accept the Terms and Conditions'
+                regAlert.classList.remove('alert-warning', 'alert-success', 'regAlert')
+                return regAlert.classList.add('alert-warning')
+            }
+        }
+        // BootStap client side form validation
+        reg.classList.add('was-validated');
+    })
+
+    // event listerner to remove alert if clicked once shown
+    regAlert.addEventListener('click', function () {
+        regAlert.classList.add('regAlert')
+    })
+
+</script>

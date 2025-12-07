@@ -1,0 +1,34 @@
+img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  width: 100%;
+  margin-bottom: 16px;
+  float: left;
+  margin-right: 16px;
+}
+
+.card-header {
+  background: #e51937;
+  color: white;
+}
+
+#review {
+  background: #0b4019;
+  color: white;
+}
+
+#addReview {
+  background: #0b4019;
+  color: white;
+}
+
+.card-img-top {
+  width: 50%;
+  float: left;
+  margin-right: 16px;
+}
+
+strong {
+  text-align: center;
+}

@@ -1,0 +1,12 @@
+body {
+  font-family: "Yanone Kaffeesatz", sans-serif;
+  font-size: 1.3em;
+  color: #1f306e;
+}
+#home {
+  font-size: 1.2em;
+  color: #ff6f91;
+}
+.navbar {
+  display: block;
+}

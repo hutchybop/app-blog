@@ -1,0 +1,105 @@
+<% layout('layouts/boilerplate')%>
+
+<% if (typeof currentUser !== 'undefined') { %>
+    <% if(currentUser.id === '5fc3a703cfa409377cabb008') { %>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex">
+                        <div class="mr-auto">
+                            <a class="btn btn-primary btn-lg" href="/blogim/<%=post.id%>/edit">Edit</a>
+                        </div>
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <a class='btn btn-secondary btn-lg' href='/blogim'>Back</a>
+                            </div>
+                        </div>
+                        <div>
+                            <form action='/blogim/<%=post.id%>?_method=DELETE' method='post'>
+                                <button class="btn btn-danger btn-lg">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="container">
+            <div class="row justify-content-end mr-2">
+                <a class='btn btn-secondary btn-lg' href='/blogim'>Back</a>
+            </div>
+        </div>
+    <% } %>
+<% } else { %>
+    <div class="container">
+        <div class="row justify-content-end mr-2">
+            <a class='btn btn-secondary btn-lg' href='/blogim'>Back</a>
+        </div>
+    </div>
+<% } %>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mt-4 mb-3">
+                <div class="card-header">
+                    <h4 class="card-title"> <%= post.title %></h4>
+                </div>
+                
+                <div class="card-body">
+                    <img class="card-img-top" src="<%= post.img %>" alt="Image not found">
+                    <%- post.post %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mt-4 mb-3">
+                <div class="card-header" id="review">
+                    <h4 class="card-title">Post Reviews</h4>
+                </div>
+                
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <% for (let r = post.reviews.length-1; r > -1; r--){%>
+                            <li class="list-group-item">
+                                <div>
+                                    <strong><%= post.reviews[r].author.username%></strong> - <%= post.reviews[r].body %>
+                                </div>
+                                <div>
+                                    <%  if( typeof currentUser !== 'undefined' && post.reviews[r].author.equals(currentUser._id))  {%>
+                                        <form action="/blogim/<%=post._id%>/reviews/<%=post.reviews[r]._id%>?_method=DELETE"
+                                            method="POST">
+                                            <button class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header" id="addReview">
+                    <h4 class="card-title">Add a Review</h4>
+                </div>
+                <div class="card-body">
+                    <form action="/blogim/<%=post._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label" for="body">Review Text</label>
+                            <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                        </div>
+                        <button class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

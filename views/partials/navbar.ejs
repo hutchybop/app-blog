@@ -1,0 +1,29 @@
+<nav class="navbar navbar-expand-md sticky-top navbar-dark bg-dark">
+    <div class="container-fluid">
+
+        <a id='home' class="navbar-brand" href="/">&Eta;&beta;</a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+            <div class="navbar-nav ml-auto">
+                <% if(typeof currentUser === 'undefined') {%>
+                <a class="nav-link" href="/login">Login</a>
+                <a class="nav-link" href="/register">Register</a>
+                <% } else {%>
+                <% if(currentUser.role === 'admin' || currentUser.username === 'hutchybop') { %>
+                    <a class="nav-link text-warning" href="/admin/flagged-reviews" title="Admin Panel">
+                        <i class="fas fa-shield-alt"></i> Admin
+                    </a>
+                <% } %>
+                <a class='nav-link' href='/details'>Hi <%=currentUser.username%></a>
+                <a class="nav-link" href="/logout">Logout</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</nav>

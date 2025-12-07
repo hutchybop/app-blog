@@ -1,0 +1,30 @@
+<% layout('layouts/boilerplate')%>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading" style="white-space: pre-line;">Error Message: <%= err.message %> </h4>
+                <p>Oh no, something went wrong. Go back and try something different.</p>
+                <hr>
+                <blockquote class="blockquote">
+                    <p class="mb-0">The definition of insanity is doing the same thing over and over again and
+                        expecting
+                        a
+                        different result.</p>
+                    <footer class="blockquote-footer">Albert Einstein</footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <% if(process.env.NODE_ENV !== 'production') { %>
+            <p id="stack"><%= err.stack %> </p>
+            <% } %>
+        </div>
+    </div>
+</div>
