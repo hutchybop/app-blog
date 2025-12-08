@@ -23,14 +23,18 @@ _Note: The website may be temporarily unavailable during updates or testing._
 - 🚩 **Review Moderation** - Flagged review management with approval/rejection workflow
 - 📝 **Content Management** - Create, edit, and delete blog posts
 - 👤 **User Management** - Overview of user activity and account management
+- 📈 **Analytics Dashboard** - Real-time visitor tracking and request analytics
+- 🛡️ **IP Management** - Block/unblock suspicious IPs with caching system
 
 ### Security & Performance
 
 - 🛡️ **Security Middleware** - Helmet, compression, and custom security layers
 - 🚦 **Rate Limiting** - Multiple rate limiters for different endpoints
-- 🌍 **IP Tracking** - Geolocation and malicious IP blocking
+- 🌍 **IP Tracking** - Geolocation and malicious IP blocking with fallback services
+- 📊 **Request Analytics** - Comprehensive tracking of visitors, routes, and countries
 - 📧 **Email Notifications** - Automated email system for important events
 - 🗂️ **Session Management** - Secure session storage with MongoDB
+- ⚡ **Performance Optimization** - Caching strategies and database indexing
 
 ---
 
@@ -44,21 +48,24 @@ _Note: The website may be temporarily unavailable during updates or testing._
 - **Authentication:** bcrypt + express-session
 - **Validation:** Joi schemas
 - **Security:** Helmet, express-rate-limit, custom middleware
+- **Analytics:** Custom request tracking with geo-location
+- **IP Management:** Advanced IP blocking with caching
 
 ### Frontend
 
 - **Templating:** EJS with ejs-mate layouts
 - **Styling:** Bootstrap 5
 - **Client-side:** Vanilla JavaScript with form validation
-- **UI Components:** Flash messages, responsive design
+- **UI Components:** Flash messages, responsive design, analytics dashboards
 
 ### Key Dependencies
 
 - **Security:** helmet, bcrypt, sanitize-html, express-rate-limit
 - **Email:** nodemailer (Zoho SMTP)
-- **Geolocation:** geoip-lite
+- **Geolocation:** geoip-lite, axios (fallback API)
 - **Session:** connect-mongo for persistent sessions
 - **Validation:** joi, express-recaptcha
+- **Analytics:** Custom tracker with MongoDB aggregation
 - **Development:** eslint, prettier
 
 ---
@@ -115,19 +122,25 @@ Required environment variables:
 │   ├── blockedIP.js      # IP blocking model
 │   ├── review.js         # Review model
 │   ├── schemas.js        # Joi validation schemas
+│   ├── tracker.js        # Analytics tracking model
 │   └── user.js           # User model with auth methods
 ├── utils/                # Utility functions and middleware
 │   ├── auth.js           # Authentication utilities
+│   ├── blockedIPMiddleware.js # IP blocking system with caching
 │   ├── catchAsync.js     # Async error wrapper
 │   ├── contentFilter.js  # Spam detection and content filtering
 │   ├── errorHandler.js   # Centralized error handling
-│   ├── ipMiddleware.js   # IP tracking and blocking
+│   ├── ipLookup.js       # Geolocation with fallback services
+│   ├── ipMiddleware.js   # IP tracking and processing
 │   ├── mail.js           # Email service
 │   ├── middleware.js     # Request validation and authorization
 │   ├── passwordUtils.js  # Password security utilities
-│   └── rateLimiter.js    # Rate limiting configuration
+│   ├── rateLimiter.js    # Rate limiting configuration
+│   └── tracker.js        # Request analytics middleware
 ├── views/                # EJS templates
 │   ├── admin/            # Admin interface templates
+│   │   ├── tracker.ejs       # Analytics dashboard
+│   │   └── blockedIPs.ejs    # IP management interface
 │   ├── blogim/           # Blog-related templates
 │   ├── layouts/          # Base layouts
 │   ├── partials/         # Reusable components
@@ -171,10 +184,12 @@ npm run lint:fix
 
 ### Key Features Implementation
 
-- **Security:** Custom middleware for MongoDB injection protection
-- **Performance:** Compression middleware and efficient database queries
+- **Security:** Custom middleware for MongoDB injection protection and IP blocking
+- **Performance:** Compression middleware, caching strategies, and efficient database queries
 - **User Experience:** Flash messages, responsive design, form validation
 - **Admin:** Comprehensive moderation tools with review flagging system
+- **Analytics:** Real-time visitor tracking, country statistics, and route analytics
+- **IP Management:** Advanced blocking system with geolocation and fallback services
 
 ---
 
@@ -196,9 +211,11 @@ This project follows established development patterns and security best practice
 - Additional content types beyond blog posts
 - Enhanced user role system
 - API endpoints for mobile applications
-- Advanced analytics and reporting
+- Advanced analytics and reporting (currently in development)
 - Email subscription system
 - Social media integration
+- Real-time notifications for admin events
+- Automated threat detection and response
 
 ---
 

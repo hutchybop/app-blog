@@ -18,33 +18,42 @@ This is a Node.js/Express blog application built for blog.longrunner.co.uk, feat
 graph TD
     A[User Request] --> B[Express App]
     B --> C[Security Middleware]
-    C --> D[Rate Limiting]
-    D --> E[IP Lookup]
-    E --> F[Session Management]
-    F --> G[Route Handler]
-    G --> H[Controller]
-    H --> I[Validation]
-    I --> J[Database Operations]
-    J --> K[MongoDB]
-    K --> L[Response]
-    L --> M[EJS Template]
-    M --> N[HTML Response]
+    C --> D[MongoDB Sanitization]
+    D --> E[Rate Limiting]
+    E --> F[IP Processing]
+    F --> G[Blocked IP Check]
+    G --> H[Session Management]
+    H --> I[Request Tracking]
+    I --> J[Route Handler]
+    J --> K[Controller]
+    K --> L[Validation]
+    L --> M[Content Filtering]
+    M --> N[Database Operations]
+    N --> O[MongoDB]
+    O --> P[Response]
+    P --> Q[EJS Template]
+    Q --> R[HTML Response]
 
-    O[Email Service] --> P[Nodemailer]
-    Q[Content Filter] --> R[Spam Detection]
-    S[IP Blocking] --> T[BlockedIP Model]
+    S[Email Service] --> T[Nodemailer]
+    U[Content Filter] --> V[Spam Detection]
+    W[IP Blocking] --> X[BlockedIP Model]
+    Y[Analytics] --> Z[Tracker Model]
+    AA[Geolocation] --> BB[IP Lookup Services]
 ```
 
 ### Request Flow:
 
 1. **Incoming Request** → Security middleware (Helmet, compression)
-2. **Rate Limiting** → IP-based and user-based limits
-3. **Authentication** → Session validation and user population
-4. **Route Processing** → Controller handles business logic
-5. **Data Validation** → Joi schemas and content filtering
-6. **Database Operations** → Mongoose models interact with MongoDB
-7. **Response Generation** → EJS templates render HTML
-8. **Email Notifications** → Async email sending for important events
+2. **MongoDB Sanitization** → Custom middleware to prevent injection attacks
+3. **Rate Limiting** → IP-based and user-based limits
+4. **IP Processing** → IP extraction, geolocation, and blocked IP checking
+5. **Session Management** → Session validation and user population
+6. **Request Tracking** → Analytics middleware for visitor tracking
+7. **Route Processing** → Controller handles business logic
+8. **Data Validation** → Joi schemas and advanced content filtering
+9. **Database Operations** → Mongoose models interact with MongoDB
+10. **Response Generation** → EJS templates render HTML
+11. **Email Notifications** → Async email sending for important events
 
 ## 3. File/Module Inventory
 
@@ -102,7 +111,19 @@ graph TD
 - **Purpose**: Malicious IP address management
 - **Key Responsibilities**:
   - Blocked IP array storage
+  - Dynamic IP blocking with caching
 - **Main Exports**: BlockedIP model
+
+#### `models/tracker.js` - Request Analytics Model
+
+- **Purpose**: Visitor tracking and analytics
+- **Key Responsibilities**:
+  - IP-based visitor tracking
+  - Route visitation counting
+  - Geographic location storage
+  - Good/bad request categorization
+  - User agent tracking
+- **Main Exports**: Tracker model with Map-based route storage
 
 ### Controllers Layer (`controllers/`)
 
@@ -171,45 +192,68 @@ graph TD
   - User population from session
 - **Main Functions**: Validation functions, authorization middleware
 
-#### `utils/passwordUtils.js` - Password Management
+#### `utils/passwordUtils.js` - Password Security
 
-- **Purpose**: Password security utilities
+- **Purpose**: Password security utilities with bcrypt
 - **Key Responsibilities**:
-  - Password hashing (bcrypt)
-  - Reset token generation
-- **Main Functions**: hashPassword, comparePassword, generateResetToken
+  - Password hashing (12 salt rounds for security)
+  - Password verification
+  - Cryptographically secure reset token generation
+  - Reset token expiry calculation (1 hour)
+- **Main Functions**: hashPassword, comparePassword, generateResetToken, generateResetTokenExpiry
 
-#### `utils/contentFilter.js` - Spam Detection
+#### `utils/contentFilter.js` - Advanced Spam Detection
 
-- **Purpose**: Content validation and spam filtering
+- **Purpose**: Content validation and sophisticated spam filtering
 - **Key Responsibilities**:
-  - HTML sanitization
-  - Spam pattern detection
-  - Content scoring
-- **Main Functions**: validateReview, detectSpam, sanitizeContent
+  - HTML sanitization (no tags allowed)
+  - Multi-category spam pattern detection:
+    - URL detection (including obscure TLDs)
+    - Promotional keyword filtering
+    - Contact information detection
+    - Repetitive content analysis
+    - Suspicious pattern matching
+  - Content scoring system (threshold: 3 points)
+  - Invisible character removal
+  - Length and capitalization analysis
+- **Main Functions**: validateReview, detectSpam, sanitizeContent, getSpamErrorMessage
+- **Scoring**: URLs (3pts), Promotional (2pts), Contact (4pts), Repetitive (1pts), Suspicious (5pts), Obscure websites (8pts)
 
-#### `utils/rateLimiter.js` - Rate Limiting
+#### `utils/rateLimiter.js` - Multi-Tier Rate Limiting
 
-- **Purpose**: API rate limiting
+- **Purpose**: Comprehensive API rate limiting system
 - **Key Responsibilities**:
-  - Multiple rate limiters for different endpoints
-  - IP and user-based limiting
-- **Main Functions**: generalLimiter, authLimiter, passwordResetLimiter, registrationLimiter, reviewLimiter
+  - Endpoint-specific rate limiting strategies
+  - IP-based and user-based limiting
+  - Success request skipping for auth endpoints
+  - Dynamic key generation for logged-in vs anonymous users
+- **Main Functions**:
+  - generalLimiter: 200 requests/15min (all endpoints)
+  - authLimiter: 10 attempts/15min (login)
+  - passwordResetLimiter: 5 attempts/hour (password reset)
+  - registrationLimiter: 5 attempts/hour (registration)
+  - reviewLimiter: 3 reviews/15min (content submission)
 
 #### `utils/mail.js` - Email Service
 
-- **Purpose**: Email notification system
+- **Purpose**: Email notification system via Zoho SMTP
 - **Key Responsibilities**:
-  - SMTP configuration (Zoho)
-  - Email sending functionality
+  - SMTP configuration (Zoho EU servers)
+  - Secure email transmission (port 465, SSL)
+  - Dynamic recipient handling
+  - Admin notification system
 - **Main Functions**: mail function for sending notifications
+- **Configuration**: Uses EMAIL_USER, ALIAS_EMAIL, ZOHOPW environment variables
 
-#### `utils/ipLookup.js` - Geolocation
+#### `utils/ipLookup.js` - Geolocation Service
 
-- **Purpose**: IP address geolocation
+- **Purpose**: IP address geolocation with fallback services
 - **Key Responsibilities**:
-  - IP geolocation using geoip-lite
-  - Country and city lookup
+  - Primary geolocation using geoip-lite (local, fast)
+  - Fallback to ip-api.com (external service)
+  - Development mode with random IP simulation
+  - IPv6 to IPv4 address normalization
+  - Country name resolution using country-list
 - **Main Functions**: reviewIp
 
 #### `utils/ipMiddleware.js` - IP Middleware
@@ -244,6 +288,36 @@ graph TD
 - **Key Responsibilities**:
   - Request logging for analytics
 - **Main Functions**: myLogger
+
+#### `utils/tracker.js` - Analytics Middleware
+
+- **Purpose**: Real-time visitor analytics
+- **Key Responsibilities**:
+  - IP-based visitor tracking
+  - Route visitation analytics
+  - Geographic data collection
+  - Request success/failure tracking
+  - First-time visitor detection
+- **Main Functions**: trackRequest
+
+#### `utils/blockedIPMiddleware.js` - IP Blocking System
+
+- **Purpose**: Dynamic IP blocking with caching
+- **Key Responsibilities**:
+  - Blocked IP cache management (5-minute TTL)
+  - Real-time IP blocking checks
+  - IPv6 to IPv4 address normalization
+  - Cache optimization for performance
+- **Main Functions**: checkBlockedIP, blockIP, unblockIP, getBlockedIPs, updateBlockedIPCache
+
+#### `utils/ipMiddleware.js` - IP Information Extraction
+
+- **Purpose**: IP address processing and information extraction
+- **Key Responsibilities**:
+  - Client IP address extraction
+  - Proxy-aware IP detection
+  - IP information attachment to request object
+- **Main Functions**: getIpInfoMiddleware
 
 ### Views Layer (`views/`)
 
@@ -343,6 +417,9 @@ graph TD
 - `utils/middleware.js`
 - `utils/rateLimiter.js`
 - `utils/ipMiddleware.js`
+- `utils/auth.js`
+- `utils/tracker.js`
+- `utils/blockedIPMiddleware.js`
 - `models/user.js`
 - `models/blockedIP.js`
 
@@ -353,6 +430,8 @@ graph TD
 - `utils/mail.js` for notifications
 - `utils/passwordUtils.js` for auth
 - `utils/contentFilter.js` for spam detection
+- `utils/ipLookup.js` for geolocation (reviews controller)
+- `utils/blockedIPMiddleware.js` for IP management (admin, reviews controllers)
 
 #### Model imports:
 
@@ -402,11 +481,12 @@ graph TD
 1. **Input** → Review form data
 2. **Rate Limiting** → `rateLimiter.js:reviewLimiter`
 3. **Content Filtering** → `contentFilter.js:validateReview`
-4. **Spam Detection** → Pattern matching and scoring
-5. **IP Tracking** → `ipLookup.js:reviewIp`
-6. **Database** → Review model creation + BlogIM update
-7. **Notification** → Email to admin
-8. **Response** → Redirect with success/error message
+4. **Spam Detection** → Advanced pattern matching and scoring
+5. **IP Tracking** → `ipLookup.js:reviewIp` (with fallback services)
+6. **IP Blocking Check** → `blockedIPMiddleware.js` for high-score spam
+7. **Database** → Review model creation + BlogIM update (if not flagged)
+8. **Admin Notification** → Email for flagged content
+9. **Response** → Redirect with success/error message
 
 ### Authentication Flow:
 
@@ -444,8 +524,9 @@ graph TD
 
 #### 5. Security Middleware Chain:
 
-- `app.js:95-200` → Multiple security layers (Helmet, rate limiting, IP blocking)
-- **Critical Path**: Every request passes through security checks
+- `app.js:95-220` → Multiple security layers (Helmet, MongoDB sanitization, rate limiting, IP processing, blocking)
+- **Critical Path**: Every request passes through comprehensive security checks
+- **Components**: Security headers, injection prevention, rate limiting, geolocation, IP blocking, analytics tracking
 
 ### Common User Flows:
 
@@ -544,5 +625,169 @@ graph TD
 - **Rate Limiting**: `utils/rateLimiter.js` for adjusting limits
 - **Content Filtering**: `utils/contentFilter.js` for spam detection rules
 - **Email Configuration**: `utils/mail.js` for SMTP settings
+- **IP Blocking**: `utils/blockedIPMiddleware.js` for cache TTL (5 minutes)
+- **Analytics**: `utils/tracker.js` for visitor tracking configuration
+- **Geolocation**: `utils/ipLookup.js` for fallback service configuration
+
+## 8. Security Architecture
+
+### Multi-Layer Security Approach:
+
+1. **Application Layer**:
+   - Helmet.js for security headers
+   - Express compression for performance
+   - Custom MongoDB injection prevention
+
+2. **Network Layer**:
+   - IP-based rate limiting
+   - Geographic IP tracking
+   - Dynamic IP blocking with caching
+
+3. **Authentication Layer**:
+   - bcrypt password hashing (12 rounds)
+   - Session management with secure cookies
+   - Passport-to-bcrypt migration support
+
+4. **Content Layer**:
+   - Advanced spam detection with scoring
+   - HTML sanitization
+   - Input validation with Joi
+
+5. **Monitoring Layer**:
+   - Request analytics and tracking
+   - Failed request monitoring
+   - Geographic visitor analysis
+
+### Security Features:
+
+- **Rate Limiting**: Tiered limits by endpoint type
+- **IP Blocking**: Automatic blocking for high spam scores (≥10)
+- **Content Filtering**: Multi-category spam detection
+- **Session Security**: HTTP-only, secure cookies with sameSite strict
+- **Input Sanitization**: MongoDB query injection prevention
+- **Password Security**: Strong bcrypt hashing with salt rounds
+
+## 9. Database Schema Relationships
+
+### Entity Relationship Diagram:
+
+```mermaid
+erDiagram
+    User ||--o{ Review : creates
+    BlogIM ||--o{ Review : contains
+    User {
+        ObjectId _id
+        string username
+        string email
+        string password
+        string role
+        string resetPasswordToken
+        Date resetPasswordExpires
+        Boolean resetPasswordUsed
+    }
+    BlogIM {
+        ObjectId _id
+        string title
+        string img
+        string post
+        Number num
+        ObjectId[] reviews
+        Date createdAt
+        Date updatedAt
+    }
+    Review {
+        ObjectId _id
+        string body
+        ObjectId author
+        ObjectId blogIM
+        Boolean isFlagged
+        string flagReason
+        Number spamScore
+        string ipAddress
+        string userAgent
+        Date createdAt
+    }
+    BlockedIP {
+        ObjectId _id
+        string[] blockedIPArray
+        Date createdAt
+        Date updatedAt
+    }
+    Tracker {
+        ObjectId _id
+        string ip
+        string country
+        string city
+        Number timesVisited
+        string lastVisitDate
+        string lastVisitTime
+        Map routes
+        string userAgent
+        Boolean isFirstVisit
+        Number badRequests
+        Number goodRequests
+        Date createdAt
+        Date updatedAt
+    }
+```
+
+### Key Relationships:
+
+1. **User → Review**: One-to-many relationship (user can create multiple reviews)
+2. **BlogIM → Review**: One-to-many relationship (blog post can have multiple reviews)
+3. **Review → User**: Many-to-one relationship (review belongs to one user)
+4. **Review → BlogIM**: Many-to-one relationship (review belongs to one blog post)
+
+### Database Indexes:
+
+- **User**: Unique indexes on `username` and `email`
+- **Tracker**: Compound index on `ip` and `lastVisitDate` for performance
+- **Review**: Indexes on `blogIM`, `author`, and `isFlagged` for queries
+
+## 10. Performance Optimizations
+
+### Caching Strategies:
+
+1. **IP Blocking Cache**: 5-minute TTL to reduce database queries
+2. **Session Store**: MongoDB-based session storage for persistence
+3. **Static Asset Caching**: Express static middleware with appropriate headers
+
+### Database Optimizations:
+
+1. **Selective Field Loading**: Password fields use `select: false` for security
+2. **Lean Queries**: Use lean() for read-only operations where possible
+3. **Index Optimization**: Strategic indexes on frequently queried fields
+
+### Request Processing:
+
+1. **Compression**: Gzip compression for all responses
+2. **Security Headers**: Helmet.js for optimized security headers
+3. **Rate Limiting**: Memory-based rate limiting for performance
+
+## 11. Development vs Production Configuration
+
+### Development Mode:
+
+- Random IP simulation for testing (`utils/ipLookup.js`)
+- Detailed error messages in validation
+- Console logging for debugging
+- Environment variable loading with dotenv
+
+### Production Mode:
+
+- Real IP geolocation
+- Generic error messages for security
+- Trust proxy configuration for nginx
+- Secure cookie settings
+- Optimized error handling
+
+### Environment Variables:
+
+- `NODE_ENV`: Development/production mode
+- `MONGODB`: Database connection string
+- `SESSION_KEY`: Session encryption key
+- `EMAIL_USER`, `ZOHOPW`: Email configuration
+- `SITEKEY`, `SECRETKEY`: reCAPTCHA configuration
+- `MONGODB_URI`: Alternative database URL
 
 This architecture provides a solid foundation for extending the application while maintaining security, performance, and code organization standards.
