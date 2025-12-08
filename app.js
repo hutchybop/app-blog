@@ -336,13 +336,8 @@ app.delete(
   catchAsync(admin.deletePost),
 );
 
-// home route - redirect to blog
-app.get("/", (req, res) => {
-  res.redirect("/blogim");
-});
-
 // blogIM routes (public only)
-app.get("/blogim", catchAsync(blogsIM.index));
+app.get("/", catchAsync(blogsIM.index));
 app.get("/blogim/:id", catchAsync(blogsIM.show));
 
 // Site-Map route
