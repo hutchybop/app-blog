@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: http://localhost:3004/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /auth/
+
+# Disallow temporary test routes
+Disallow: /test-error

@@ -133,6 +133,25 @@ graph TD
   - Admin moderation functions
 - **Main Functions**: create, delete, flaggedReviews, updateFlaggedReview
 
+#### `controllers/admin.js` - Admin Panel Controller
+
+- **Purpose**: Administrative interface
+- **Key Responsibilities**:
+  - Admin dashboard
+  - Post management
+  - Review moderation
+  - User management
+- **Main Functions**: dashboard, posts, flaggedReviews, allReviews
+
+#### `controllers/policy.js` - Policy Controller
+
+- **Purpose**: Legal policy pages
+- **Key Responsibilities**:
+  - Cookie policy
+  - Terms and conditions
+  - Privacy policy
+- **Main Functions**: cookiePolicy, tandc, logs
+
 ### Utilities Layer (`utils/`)
 
 #### `utils/auth.js` - Authentication Utilities
@@ -193,6 +212,14 @@ graph TD
   - Country and city lookup
 - **Main Functions**: reviewIp
 
+#### `utils/ipMiddleware.js` - IP Middleware
+
+- **Purpose**: IP tracking and blocking
+- **Key Responsibilities**:
+  - IP address extraction
+  - Blocked IP checking
+- **Main Functions**: getIpInfoMiddleware
+
 #### `utils/catchAsync.js` - Async Error Handling
 
 - **Purpose**: Async function error wrapper
@@ -204,6 +231,19 @@ graph TD
 - **Purpose**: Custom error handling
 - **Key Responsibilities**:
   - Structured error creation
+
+#### `utils/errorHandler.js` - Error Handler
+
+- **Purpose**: Centralized error handling
+- **Key Responsibilities**:
+  - Error logging and response formatting
+
+#### `utils/trackerLog.js` - Request Logging
+
+- **Purpose**: Request tracking and logging
+- **Key Responsibilities**:
+  - Request logging for analytics
+- **Main Functions**: myLogger
 
 ### Views Layer (`views/`)
 
@@ -225,7 +265,7 @@ graph TD
 #### `views/blogim/` - Blog Views
 
 - **Purpose**: Blog-related templates
-- **Files**: index.ejs, show.ejs, new.ejs, edit.ejs
+- **Files**: index.ejs, show.ejs
 
 #### `views/users/` - User Views
 
@@ -235,7 +275,12 @@ graph TD
 #### `views/admin/` - Admin Views
 
 - **Purpose**: Administrative interface
-- **Files**: flaggedReviews.ejs
+- **Files**: dashboard.ejs, posts.ejs, new.ejs, edit.ejs, flaggedReviews.ejs, allReviews.ejs
+
+#### `views/policy/` - Policy Views
+
+- **Purpose**: Legal policy templates
+- **Files**: cookiePolicy.ejs, tandc.ejs, error.ejs, sitemap.xml
 
 ### Static Assets (`public/`)
 
@@ -243,6 +288,16 @@ graph TD
 
 - **Purpose**: Styling for different pages
 - **Files**: Page-specific CSS files
+
+#### `public/javascripts/` - Client-side Scripts
+
+- **Purpose**: Frontend interactivity
+- **Files**: Form validation, UI interactions
+
+#### `public/images/` - Image Assets
+
+- **Purpose**: Static images and media
+- **Files**: Post images, UI graphics
 
 ## 4. Dependency Map
 
@@ -283,6 +338,8 @@ graph TD
 - `controllers/users.js`
 - `controllers/reviews.js`
 - `controllers/blogsIM.js`
+- `controllers/admin.js`
+- `controllers/policy.js`
 - `utils/middleware.js`
 - `utils/rateLimiter.js`
 - `utils/ipMiddleware.js`
@@ -336,9 +393,9 @@ graph TD
 
 1. **Authorization** → Admin check (`middleware.js:isAdmin`)
 2. **Input** → Blog post form data
-3. **Processing** → `blogsIM.js:create`
+3. **Processing** → `admin.js:createPost`
 4. **Database** → BlogIM model creation
-5. **Response** → Redirect to new post
+5. **Response** → Redirect to posts list
 
 ### Review Creation Flow:
 
@@ -367,7 +424,7 @@ graph TD
 
 #### 1. User Authentication System:
 
-- `app.js:212-218` → `utils/auth.js:authenticateUser` → `models/user.js:authenticate`
+- `app.js:240-252` → `utils/auth.js:authenticateUser` → `models/user.js:authenticate`
 - **Critical Path**: Login request → Authentication → Session creation
 
 #### 2. Content Moderation System:
@@ -377,7 +434,7 @@ graph TD
 
 #### 3. Admin Review Moderation:
 
-- `app.js:237-238` → `controllers/reviews.js:flaggedReviews` → `views/admin/flaggedReviews.ejs`
+- `app.js:289-300` → `controllers/admin.js:flaggedReviews` → `views/admin/flaggedReviews.ejs`
 - **Critical Path**: Admin access → Flagged reviews display → Moderation actions
 
 #### 4. Password Reset System:
@@ -387,7 +444,7 @@ graph TD
 
 #### 5. Security Middleware Chain:
 
-- `app.js:95-180` → Multiple security layers (Helmet, rate limiting, IP blocking)
+- `app.js:95-200` → Multiple security layers (Helmet, rate limiting, IP blocking)
 - **Critical Path**: Every request passes through security checks
 
 ### Common User Flows:
@@ -399,14 +456,14 @@ graph TD
 
 #### User Account Management:
 
-1. Registration: `GET/POST /register` → `users.js:register/registerPost`
-2. Login: `GET/POST /login` → `users.js:login` + `app.js:212-218`
-3. Profile Update: `GET/POST /details` → `users.js:details/detailsPost`
+1. Registration: `GET/POST /auth/register` → `users.js:register/registerPost`
+2. Login: `GET/POST /auth/login` → `users.js:login` + `app.js:240-252`
+3. Profile Update: `GET/POST /auth/details` → `users.js:details/detailsPost`
 
 #### Content Management (Admin):
 
-1. Create Post: `GET/POST /blogim/pBsy6S3RgVhPg48HWZH7keaTI3EcwknE` → `blogsIM.js:new/create`
-2. Moderate Reviews: `GET /admin/flagged-reviews` → `reviews.js:flaggedReviews`
+1. Create Post: `GET/POST /admin/posts/new` → `admin.js:newPost/createPost`
+2. Moderate Reviews: `GET /admin/flagged-reviews` → `admin.js:flaggedReviews`
 
 ## 7. Extension Points
 
@@ -416,8 +473,8 @@ graph TD
 
 - **Files to Modify**:
   - `models/blogIM.js` - Add new fields to schema
-  - `controllers/blogsIM.js` - Add new controller methods
-  - `views/blogim/` - Add new EJS templates
+  - `controllers/admin.js` - Add new controller methods
+  - `views/admin/` - Add new EJS templates
   - `app.js` - Add new routes
 - **Integration Points**: Extend existing CRUD operations
 
