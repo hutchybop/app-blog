@@ -59,6 +59,11 @@ const {
 // setting up express
 const app = express();
 
+// If in production, tells express about nginx proxy
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 // setting up mongoose
 const dbUrl = [
   "mongodb+srv://hutch:",
