@@ -1,10 +1,10 @@
-//Error handler
-module.exports.errorHandler = (err, req, res) => {
+// Error handler
+/* eslint-disable no-unused-vars */
+module.exports.errorHandler = (err, req, res, next) => {
   const { statusCode = 500 } = err;
 
   // Cast error
   if (err.name === "CastError") {
-    // console.log(err)
     req.flash("error", `${err.name} The information provided cannot be found!`);
     return res.back();
   }
@@ -17,7 +17,8 @@ module.exports.errorHandler = (err, req, res) => {
 
   // Generic error
   if (!err.message) err.message = "Oh No, something went wrong.";
-  res.status(statusCode).render("error", {
+
+  res.status(statusCode).render("policy/error", {
     err,
     title: "Error - Something Went Wrong",
     page: "Error",

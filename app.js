@@ -39,6 +39,7 @@ const reviews = require("./controllers/reviews");
 const blogsIM = require("./controllers/blogsIM");
 const admin = require("./controllers/admin");
 
+const { errorHandler } = require("./utils/errorHandler");
 const catchAsync = require("./utils/catchAsync");
 const {
   validateTandC,
@@ -341,12 +342,12 @@ app.get("/blogim/:id", catchAsync(blogsIM.show));
 
 // Site-Map route
 app.get("/sitemap.xml", (req, res) => {
-  res.sendFile(path.join(__dirname, "sitemap.xml"));
+  res.sendFile(path.join(__dirname, "views/policy/sitemap.xml"));
 });
 
 // Unknown (404) webpage error
 app.use((req, res) => {
-  res.status(404).render("error", {
+  res.status(404).render("policy/error", {
     err: { message: "Page Not Found", statusCode: 404 },
     title: "Error - Page Not Found",
     page: "error",
@@ -354,7 +355,7 @@ app.use((req, res) => {
 });
 
 // Error Handler, from utils.
-// app.use(errorHandler)
+app.use(errorHandler);
 
 // Start server on port 3004 using HTTP
 app.listen(3004, () => {
