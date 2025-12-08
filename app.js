@@ -60,7 +60,12 @@ const {
 const app = express();
 
 // setting up mongoose
-const dbUrl = process.env.MONGODB_URI;
+const dbUrl = [
+  "mongodb+srv://hutch:",
+  process.env.MONGODB,
+  "@hutchybop.kpiymrr.mongodb.net/blog?",
+  "retryWrites=true&w=majority&appName=hutchyBop",
+].join("");
 
 mongoose.connect(dbUrl);
 
@@ -169,7 +174,7 @@ app.use(
 //setting up session
 const sessionConfig = {
   name: "blog_longrunner",
-  secret: process.env.SECRET,
+  secret: process.env.SESSION_KEY,
   resave: false,
   saveUninitialized: false,
   cookie: {
