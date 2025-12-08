@@ -1,0 +1,135 @@
+<% layout('admin/adminBoilerplate') %>
+
+<% contentTitle = 'Blocked IP Management' %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="fas fa-shield-alt me-2"></i>Blocked IP Management
+                </h1>
+                <div>
+                    <a href="/admin" class="btn btn-outline-primary">Dashboard</a>
+                    <a href="/admin/tracker" class="btn btn-outline-info">Analytics</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block New IP Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus-circle me-2"></i>Block New IP Address</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/block-ip" method="POST" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="ip" class="form-label">IP Address</label>
+                            <input type="text" class="form-control" id="ip" name="ip" 
+                                   placeholder="e.g., 192.168.1.1" required
+                                   pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+                                   title="Please enter a valid IP address (e.g., 192.168.1.1)">
+                            <div class="form-text">Enter the IP address you want to block from accessing your site.</div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-ban me-2"></i>Block IP
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocked IPs List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list me-2"></i>Currently Blocked IPs</h5>
+                    <span class="badge bg-danger"><%= blockedIPs.length %> IPs Blocked</span>
+                </div>
+                <div class="card-body">
+                    <% if (blockedIPs.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>IP Address</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% blockedIPs.forEach(function(ip) { %>
+                                        <tr>
+                                            <td><code><%= ip %></code></td>
+                                            <td>
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-ban me-1"></i>Blocked
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <form action="/admin/unblock-ip/<%= encodeURIComponent(ip) %>" 
+                                                      method="POST" 
+                                                      onsubmit="return confirm('Are you sure you want to unblock this IP address?');">
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-unlock me-1"></i>Unblock
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No IPs Currently Blocked</h5>
+                            <p class="text-muted">Your site is not blocking any IP addresses at the moment.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Information Section -->
+    <div class="row mt-4 mb-3">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-info-circle me-2"></i>About IP Blocking</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>How it works:</h6>
+                            <ul>
+                                <li>Blocked IPs are immediately denied access to your site</li>
+                                <li>They receive a 403 Forbidden error page</li>
+                                <li>Blocked requests are not tracked in analytics</li>
+                                <li>The system uses caching for optimal performance</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Automatic blocking:</h6>
+                            <ul>
+                                <li>IPs may be automatically blocked for suspicious activity</li>
+                                <li>This includes spam reviews and abusive behavior</li>
+                                <li>Review tracker analytics to identify problematic IPs</li>
+                                <li>Use the block form above to manually add IPs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

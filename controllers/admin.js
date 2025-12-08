@@ -1,6 +1,12 @@
 const BlogIM = require("../models/blogIM");
 const Review = require("../models/review");
+const Tracker = require("../models/tracker");
 const { mail } = require("../utils/mail");
+const {
+  blockIP,
+  unblockIP,
+  getBlockedIPs,
+} = require("../utils/blockedIPMiddleware");
 
 // ADMIN DASHBOARD - Admin dashboard (get)
 module.exports.dashboard = async (req, res) => {
@@ -220,4 +226,168 @@ module.exports.deleteReviewWithReason = async (req, res) => {
 
   req.flash("success", "Review deleted successfully");
   res.redirect("/admin/all-reviews");
+};
+
+// ADMIN BLOCKED IPS - View and manage blocked IPs (get)
+module.exports.blockedIPs = async (req, res) => {
+  const blockedIPs = await getBlockedIPs();
+
+  // Get review counts for admin pages
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
+  const posts = await BlogIM.find();
+
+  res.render("admin/blockedIPs", {
+    title: "Blocked IPs - Admin",
+    blockedIPs,
+    flaggedReviewsCount: flaggedReviews.length,
+    allReviewsCount: allReviews.length,
+    posts,
+  });
+};
+
+// ADMIN BLOCK IP - Add an IP to block list (post)
+module.exports.blockIP = async (req, res) => {
+  const { ip } = req.body;
+
+  if (!ip) {
+    req.flash("error", "IP address is required");
+    return res.redirect("/admin/blocked-ips");
+  }
+
+  const success = await blockIP(ip);
+
+  if (success) {
+    req.flash("success", `IP ${ip} has been blocked`);
+  } else {
+    req.flash("error", "Failed to block IP address");
+  }
+
+  res.redirect("/admin/blocked-ips");
+};
+
+// ADMIN UNBLOCK IP - Remove an IP from block list (delete)
+module.exports.unblockIP = async (req, res) => {
+  const { ip } = req.params;
+
+  const success = await unblockIP(ip);
+
+  if (success) {
+    req.flash("success", `IP ${ip} has been unblocked`);
+  } else {
+    req.flash("error", "Failed to unblock IP address");
+  }
+
+  res.redirect("/admin/blocked-ips");
+};
+
+// ADMIN TRACKER - View tracker analytics (get)
+module.exports.tracker = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 50;
+  const skip = (page - 1) * limit;
+
+  // Get blocked IPs for statistics
+  const blockedIPs = await getBlockedIPs();
+
+  // Get overall statistics
+  const totalStats = await Tracker.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalVisits: { $sum: "$timesVisited" },
+        uniqueIPs: { $addToSet: "$ip" },
+        totalGoodRequests: { $sum: "$goodRequests" },
+        totalBadRequests: { $sum: "$badRequests" },
+        totalFirstTimeVisits: { $sum: { $cond: ["$isFirstVisit", 1, 0] } },
+      },
+    },
+  ]);
+
+  const stats = totalStats[0] || {
+    totalVisits: 0,
+    uniqueIPs: [],
+    totalGoodRequests: 0,
+    totalBadRequests: 0,
+    totalFirstTimeVisits: 0,
+  };
+
+  // Get country statistics
+  const countryStats = await Tracker.aggregate([
+    {
+      $group: {
+        _id: "$country",
+        count: { $sum: "$timesVisited" },
+        uniqueIPs: { $addToSet: "$ip" },
+      },
+    },
+    {
+      $addFields: {
+        uniqueIPCount: { $size: "$uniqueIPs" },
+      },
+    },
+    {
+      $project: {
+        uniqueIPs: 0,
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+  ]);
+
+  // Get recent tracker data with pagination
+  const trackerData = await Tracker.find()
+    .sort({ lastVisitDate: -1, lastVisitTime: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const totalTrackerEntries = await Tracker.countDocuments();
+  const totalPages = Math.ceil(totalTrackerEntries / limit);
+
+  // Get route statistics
+  const routeStats = await Tracker.aggregate([
+    { $unwind: "$routes" },
+    {
+      $group: {
+        _id: "$routes.k",
+        count: { $sum: "$routes.v" },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+    {
+      $limit: 20,
+    },
+  ]);
+
+  // Get review counts for admin pages
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
+  const posts = await BlogIM.find();
+
+  res.render("admin/tracker", {
+    title: "Tracker Analytics - Admin",
+    trackerData,
+    stats: {
+      ...stats,
+      uniqueIPCount: stats.uniqueIPs.length,
+      totalRequests: stats.totalGoodRequests + stats.totalBadRequests,
+      blockedIPCount: blockedIPs.length,
+    },
+    countryStats,
+    routeStats,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      limit,
+    },
+    flaggedReviewsCount: flaggedReviews.length,
+    allReviewsCount: allReviews.length,
+    blockedIPs,
+    posts,
+  });
 };

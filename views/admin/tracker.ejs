@@ -1,0 +1,294 @@
+<% layout('admin/adminBoilerplate') %>
+
+<% contentTitle = 'Tracker Analytics' %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-chart-line me-2"></i>Tracker Analytics
+            </h1>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Visits</h5>
+                    <h2 class="card-text"><%= stats.totalVisits %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Unique IPs</h5>
+                    <h2 class="card-text"><%= stats.uniqueIPCount %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Good Requests</h5>
+                    <h2 class="card-text"><%= stats.totalGoodRequests %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Bad Requests</h5>
+                    <h2 class="card-text"><%= stats.totalBadRequests %></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Blocked IPs</h5>
+                    <h2 class="card-text"><%= stats.blockedIPCount %></h2>
+                    <a href="/admin/blocked-ips" class="btn btn-light btn-sm mt-2">Manage IPs</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Requests</h5>
+                    <h2 class="card-text"><%= stats.totalRequests %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Success Rate</h5>
+                    <h2 class="card-text">
+                        <%= stats.totalRequests > 0 ? Math.round((stats.totalGoodRequests / stats.totalRequests) * 100) : 0 %>%
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Country Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-globe me-2"></i>Top Countries</h5>
+                </div>
+                <div class="card-body">
+                    <% if (countryStats.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th>Visits</th>
+                                        <th>Unique IPs</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% countryStats.slice(0, 10).forEach(function(country) { %>
+                                        <tr>
+                                            <td><%= country._id %></td>
+                                            <td><%= country.count %></td>
+                                            <td><%= country.uniqueIPCount %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">No country data available</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Statistics -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-route me-2"></i>Top Routes</h5>
+                </div>
+                <div class="card-body">
+                    <% if (routeStats.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Requests</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% routeStats.forEach(function(route) { %>
+                                        <tr>
+                                            <td><code><%= route._id %></code></td>
+                                            <td><%= route.count %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">No route data available</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tracker Data -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-users me-2"></i>Recent Visitor Activity</h5>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/tracker?limit=25" class="btn btn-sm btn-outline-secondary">25</a>
+                        <a href="/admin/tracker?limit=50" class="btn btn-sm btn-outline-secondary">50</a>
+                        <a href="/admin/tracker?limit=100" class="btn btn-sm btn-outline-secondary">100</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <% if (trackerData.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>IP Address</th>
+                                        <th>Country</th>
+                                        <th>City</th>
+                                        <th>Visits</th>
+                                        <th>Last Visit</th>
+                                        <th>Good/Bad</th>
+                                        <th>Routes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% trackerData.forEach(function(visitor) { %>
+                                        <tr>
+                                            <td><code><%= visitor.ip %></code></td>
+                                            <td><%= visitor.country %></td>
+                                            <td><%= visitor.city %></td>
+                                            <td>
+                                                <span class="badge bg-primary"><%= visitor.timesVisited %></span>
+                                                <% if (visitor.isFirstVisit) { %>
+                                                    <span class="badge bg-success ms-1">New</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <small><%= visitor.lastVisitDate %><br><%= visitor.lastVisitTime %></small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success"><%= visitor.goodRequests %></span>
+                                                <span class="badge bg-danger"><%= visitor.badRequests %></span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse" 
+                                                        data-bs-target="#routes-<%= visitor._id %>" aria-expanded="false">
+                                                    View Routes (<%= visitor.routes.size %>)
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" 
+                                                            data-bs-target="#details-<%= visitor._id %>" aria-expanded="false">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="8" class="p-0">
+                                                <div class="collapse" id="routes-<%= visitor._id %>">
+                                                    <div class="card card-body">
+                                                        <h6>Route Access History</h6>
+                                                        <% if (visitor.routes.size > 0) { %>
+                                                            <div class="row">
+                                                                <% Array.from(visitor.routes.entries()).forEach(function(entry) { %>
+                                                                    <div class="col-md-4 mb-2">
+                                                                        <code><%= entry[0] %></code>
+                                                                        <span class="badge bg-secondary ms-2"><%= entry[1] %></span>
+                                                                    </div>
+                                                                <% }) %>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <p class="text-muted">No route data available</p>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="8" class="p-0">
+                                                <div class="collapse" id="details-<%= visitor._id %>">
+                                                    <div class="card card-body">
+                                                        <h6>Visitor Details</h6>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <strong>First Visit:</strong> <%= visitor.createdAt.toLocaleDateString() %><br>
+                                                                <strong>Last Visit:</strong> <%= visitor.lastVisitDate %> at <%= visitor.lastVisitTime %><br>
+                                                                <strong>Total Requests:</strong> <%= visitor.goodRequests + visitor.badRequests %>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <strong>User Agent:</strong><br>
+                                                                <small class="text-muted"><%= visitor.userAgent %></small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <% if (pagination.totalPages > 1) { %>
+                            <nav aria-label="Tracker pagination">
+                                <ul class="pagination justify-content-center">
+                                    <% if (pagination.hasPrevPage) { %>
+                                        <li class="page-item">
+                                            <a class="page-link" href="/admin/tracker?page=<%= pagination.currentPage - 1 %>&limit=<%= pagination.limit %>">Previous</a>
+                                        </li>
+                                    <% } %>
+                                    
+                                    <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                                        <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                                            <a class="page-link" href="/admin/tracker?page=<%= i %>&limit=<%= pagination.limit %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+                                    
+                                    <% if (pagination.hasNextPage) { %>
+                                        <li class="page-item">
+                                            <a class="page-link" href="/admin/tracker?page=<%= pagination.currentPage + 1 %>&limit=<%= pagination.limit %>">Next</a>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </nav>
+                        <% } %>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No tracker data available</h5>
+                            <p class="text-muted">Visitor tracking will appear here once users start accessing your site.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

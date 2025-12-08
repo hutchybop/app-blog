@@ -15,6 +15,8 @@ const back = require("express-back");
 
 const helmet = require("helmet");
 const { getIpInfoMiddleware } = require("./utils/ipMiddleware");
+const { trackRequest } = require("./utils/tracker");
+const { checkBlockedIP } = require("./utils/blockedIPMiddleware");
 const compression = require("compression");
 const {
   generalLimiter,
@@ -204,6 +206,12 @@ app.use(populateUser);
 // Setting up IP middleware
 app.use(getIpInfoMiddleware);
 
+// Blocked IP middleware - check before tracking
+app.use(checkBlockedIP);
+
+// Tracker middleware - place after IP middleware but before compression
+app.use(trackRequest);
+
 // Compression to make website run quicker
 app.use(compression());
 
@@ -339,6 +347,24 @@ app.delete(
   isLoggedIn,
   isAdmin,
   catchAsync(admin.deletePost),
+);
+
+// Admin tracker analytics routes
+app.get("/admin/tracker", isLoggedIn, isAdmin, catchAsync(admin.tracker));
+
+// Admin blocked IP management routes
+app.get(
+  "/admin/blocked-ips",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(admin.blockedIPs),
+);
+app.post("/admin/block-ip", isLoggedIn, isAdmin, catchAsync(admin.blockIP));
+app.delete(
+  "/admin/unblock-ip/:ip",
+  isLoggedIn,
+  isAdmin,
+  catchAsync(admin.unblockIP),
 );
 
 // blogIM routes (public only)

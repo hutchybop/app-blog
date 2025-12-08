@@ -17,7 +17,7 @@
                             <div class="card bg-primary text-white">
                                 <div class="card-body">
                                     <h5 class="card-title">Total Posts</h5>
-                                    <h2 class="card-text"><%= posts.length %></h2>
+                                    <h2 class="card-text"><%= typeof posts !== 'undefined' ? posts.length : 0 %></h2>
                                     <a href="/admin/posts" class="btn btn-light btn-sm">Manage Posts</a>
                                 </div>
                             </div>
@@ -44,9 +44,15 @@
                             <div class="card bg-success text-white">
                                 <div class="card-body">
                                     <h5 class="card-title">Quick Actions</h5>
-                                    <div class="btn-group-vertical">
-                                        <a href="/admin/posts/new" class="btn btn-light btn-sm mb-2">Create New Post</a>
-                                        <a href="/" class="btn btn-light btn-sm">View Blog</a>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="btn-group-vertical">
+                                            <a href="/admin/posts/new" class="btn btn-light btn-sm mb-2">Create New Post</a>
+                                            <a href="/" class="btn btn-light btn-sm">View Blog</a>
+                                        </div>
+                                        <div class="btn-group-vertical text-end">
+                                            <a href="/admin/tracker" class="btn btn-light btn-sm mb-2">View Analytics</a>
+                                            <a href="/admin/blocked-ips" class="btn btn-light btn-sm">Manage IPs</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
