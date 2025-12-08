@@ -10,7 +10,7 @@
                             <a class="btn btn-primary btn-lg" href="/admin/posts/<%=post.id%>/edit">Edit</a>
                         </div>
                         <div>
-                            <a class='btn btn-secondary btn-lg' href='/blogim'>Back</a>
+                            <a class='btn btn-secondary btn-lg' href='/'>Back</a>
                         </div>
                         <div>
                             <form action='/blogim/<%=post.id%>?_method=DELETE' method='post'>
@@ -24,14 +24,14 @@
     <% } else { %>
         <div class="container">
             <div class="row justify-content-end me-2">
-                <a class='btn btn-secondary btn-lg' href='/blogim'>Back</a>
+                <a class='btn btn-secondary btn-lg' href='/'>Back</a>
             </div>
         </div>
     <% } %>
 <% } else { %>
     <div class="container">
         <div class="row justify-content-end me-2">
-            <a class='btn btn-secondary btn-lg' href='/blogim'>Back</a>
+            <a class='btn btn-secondary btn-lg' href='/'>Back</a>
         </div>
     </div>
 <% } %>

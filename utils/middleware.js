@@ -158,7 +158,7 @@ const isAdminUser = (user) => {
 module.exports.isAdmin = (req, res, next) => {
   if (!isAdminUser(req.user)) {
     req.flash("error", "You do not have permission to do that");
-    return res.redirect("/blogim");
+    return res.redirect("/");
   }
   next();
 };

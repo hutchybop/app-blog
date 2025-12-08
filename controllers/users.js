@@ -37,7 +37,7 @@ module.exports.registerPost = async (req, res) => {
     );
 
     req.flash("success", "You are logged in!");
-    res.redirect("/blogim");
+    res.redirect("/");
   } else {
     req.flash("error", "You must accept the Terms and Conditions.");
     res.redirect("/auth/register");
@@ -55,7 +55,7 @@ module.exports.login = (req, res) => {
 // login - user (POST)
 module.exports.loginPost = async (req, res) => {
   req.flash("success", "Welcome back!");
-  const redirectUrl = req.session.returnTo || "/blogim";
+  const redirectUrl = req.session.returnTo || "/";
   delete req.session.returnTo;
   res.redirect(redirectUrl);
 };
@@ -68,7 +68,7 @@ module.exports.logout = async (req, res) => {
   } catch (err) {
     req.flash("error", "Logout Error: " + err);
   }
-  res.redirect("/blogim");
+  res.redirect("/");
 };
 
 // forgot - user (GET)
@@ -176,7 +176,7 @@ module.exports.resetPost = async (req, res) => {
   );
 
   req.flash("success", "Success! Your password has been changed.");
-  res.redirect("/blogim");
+  res.redirect("/");
 };
 
 // change user details (GET)

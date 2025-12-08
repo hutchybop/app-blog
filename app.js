@@ -250,7 +250,7 @@ app.post(
   catchAsync(async (req, res) => {
     await require("./utils/auth").loginUser(req, req.user);
     req.flash("success", "Welcome back!");
-    const redirectUrl = req.session.returnTo || "/blogim";
+    const redirectUrl = req.session.returnTo || "/";
     delete req.session.returnTo;
     res.redirect(redirectUrl);
   }),
