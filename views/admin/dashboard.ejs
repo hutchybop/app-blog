@@ -33,24 +33,53 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
+                    <!-- Admin Dashboard -->
+                    <div class="list-group-item bg-light">
+                        <h6 class="mb-0 text-muted">Admin Dashboard</h6>
+                    </div>
+                    <a href="/admin" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    
+                    <!-- Content Management -->
+                    <div class="list-group-item bg-light">
+                        <h6 class="mb-0 text-muted">Content Management</h6>
+                    </div>
                     <a href="/admin/posts" class="list-group-item list-group-item-action">
-                        <i class="fas fa-blog"></i> Manage All Posts
+                        <i class="fas fa-blog"></i> Manage Posts
                     </a>
                     <a href="/admin/posts/new" class="list-group-item list-group-item-action">
                         <i class="fas fa-plus"></i> Create New Post
                     </a>
+                    
+                    <!-- Review Management -->
+                    <div class="list-group-item bg-light">
+                        <h6 class="mb-0 text-muted">Review Management</h6>
+                    </div>
                     <a href="/admin/flagged-reviews" class="list-group-item list-group-item-action">
-                        <i class="fas fa-flag"></i> Review Moderation
+                        <i class="fas fa-flag text-warning"></i> Flagged Reviews
                         <% if (flaggedReviewsCount > 0) { %>
                             <span class="badge bg-warning float-end"><%= flaggedReviewsCount %></span>
                         <% } %>
                     </a>
                     <a href="/admin/all-reviews" class="list-group-item list-group-item-action">
-                        <i class="fas fa-comments"></i> Manage All Reviews
+                        <i class="fas fa-comments"></i> All Reviews
                         <% if (allReviewsCount > 0) { %>
                             <span class="badge bg-info float-end"><%= allReviewsCount %></span>
                         <% } %>
                     </a>
+                    
+                    <!-- Analytics & Security -->
+                    <div class="list-group-item bg-light">
+                        <h6 class="mb-0 text-muted">Analytics & Security</h6>
+                    </div>
+                    <a href="/admin/tracker" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-line text-info"></i> View Analytics
+                    </a>
+                    <a href="/admin/blocked-ips" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt text-danger"></i> Manage IPs
+                    </a>
+                    
                     <a href="/" class="list-group-item list-group-item-action">
                         <i class="fas fa-home"></i> Back to Blog
                     </a>
