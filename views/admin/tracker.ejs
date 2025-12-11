@@ -170,8 +170,24 @@
                                                 <small><%= visitor.lastVisitDate %><br><%= visitor.lastVisitTime %></small>
                                             </td>
                                             <td>
-                                                <span class="badge bg-success"><%= visitor.goodRoutes.size %></span>
-                                                <span class="badge bg-danger"><%= visitor.badRoutes.size %></span>
+                                                <%
+                                                // Sum of all good route hits
+                                                let totalGoodRequests = 0;
+                                                if (visitor.goodRoutes) {
+                                                    for (let count of visitor.goodRoutes.values()) {
+                                                    totalGoodRequests += count;
+                                                    }
+                                                }
+                                                // Sum of all bad route hits
+                                                let totalBadRequests = 0;
+                                                if (visitor.badRoutes) {
+                                                    for (let count of visitor.badRoutes.values()) {
+                                                    totalBadRequests += count;
+                                                    }
+                                                }
+                                                %>
+                                                <span class="badge bg-success"><%= totalGoodRequests %></span>
+                                                <span class="badge bg-danger"><%= totalBadRequests %></span>
                                             </td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse" 
