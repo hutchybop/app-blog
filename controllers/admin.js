@@ -113,7 +113,7 @@ module.exports.updatePost = async (req, res) => {
 // ADMIN DELETE - BlogIM (delete)
 module.exports.deletePost = async (req, res) => {
   const { id } = req.params;
-  await BlogIM.findByIdAndRemove(id);
+  await BlogIM.findByIdAndDelete(id);
   req.flash("success", "Post deleted successfully!");
   res.redirect("/admin/posts");
 };
@@ -272,12 +272,15 @@ module.exports.blockIP = async (req, res) => {
 
 // ADMIN UNBLOCK IP - Remove an IP from block list (delete)
 module.exports.unblockIP = async (req, res) => {
-  const { ip } = req.params;
+  const { ip } = req.body;
+  console.log(ip);
 
-  const success = await unblockIP(ip);
+  const origIP = ip.replace(/_/g, ".");
+
+  const success = await unblockIP(origIP);
 
   if (success) {
-    req.flash("success", `IP ${ip} has been unblocked`);
+    req.flash("success", `IP ${origIP} has been unblocked`);
   } else {
     req.flash("error", "Failed to unblock IP address");
   }
@@ -331,6 +334,7 @@ module.exports.tracker = async (req, res) => {
       },
     },
   ]);
+
   const stats = statsArray[0] || {
     totalGoodRoutes: 0,
     totalBadRoutes: 0,

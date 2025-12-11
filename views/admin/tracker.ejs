@@ -12,9 +12,9 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row row-cols-5" mb-2>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
         <div class="col">
-            <div class="card bg-primary text-white">
+            <div class="card bg-primary text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Total Routes</h5>
                     <h2 class="card-text"><%= stats.totalRoutes %></h2>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="col">
-            <div class="card bg-success text-white">
+            <div class="card bg-success text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Unique IPs</h5>
                     <h2 class="card-text"><%= stats.numberOfUniqueIPs %></h2>
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="col">
-            <div class="card bg-info text-white">
+            <div class="card bg-info text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Good Routes</h5>
                     <h2 class="card-text"><%= stats.totalGoodRoutes %></h2>
@@ -38,7 +38,7 @@
             </div>
         </div>
         <div class="col">
-            <div class="card bg-warning text-white">
+            <div class="card bg-warning text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Bad Routes</h5>
                     <h2 class="card-text"><%= stats.totalBadRoutes %></h2>
@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="col">
-            <div class="card bg-danger text-white">
+            <div class="card bg-danger text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Blocked IPs</h5>
                     <h2 class="card-text"><%= stats.numberOfBlockedIPs %></h2>
@@ -58,69 +58,126 @@
 
     <!-- Country Statistics -->
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-globe me-2"></i>Top Countries</h5>
-                </div>
-                <div class="card-body">
-                    <% if (countryStats.length > 0) { %>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Country</th>
-                                        <th>Visits</th>
-                                        <th>Unique IPs</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% countryStats.slice(0, 10).forEach(function(country) { %>
-                                        <tr>
-                                            <td><%= country._id %></td>
-                                            <td><%= country.count %></td>
-                                            <td><%= country.uniqueIPCount %></td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
+        <div class="col-12">
+            <!-- Desktop view -->
+            <div class="d-none d-md-block">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-globe me-2"></i>Top Countries</h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (countryStats.length > 0) { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Country</th>
+                                                    <th>Visits</th>
+                                                    <th>Unique IPs</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% countryStats.slice(0, 10).forEach(function(country) { %>
+                                                    <tr>
+                                                        <td><%= country._id %></td>
+                                                        <td><%= country.count %></td>
+                                                        <td><%= country.uniqueIPCount %></td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <p class="text-muted">No country data available</p>
+                                <% } %>
+                            </div>
                         </div>
-                    <% } else { %>
-                        <p class="text-muted">No country data available</p>
-                    <% } %>
-                </div>
-            </div>
-        </div>
+                    </div>
 
-        <!-- Route Statistics -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-route me-2"></i>Top Routes</h5>
-                </div>
-                <div class="card-body">
-                    <% if (routeStats.length > 0) { %>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Route</th>
-                                        <th>Requests</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% routeStats.forEach(function(route) { %>
+                    <!-- Route Statistics -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-route me-2"></i>Top Routes</h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (routeStats.length > 0) { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Route</th>
+                                                    <th>Requests</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% routeStats.forEach(function(route) { %>
                                         <tr>
-                                            <td><code><%= route._id %></code></td>
+                                            <td><code class="text-break" style="max-width: 200px; display: inline-block;"><%= route._id %></code></td>
                                             <td><%= route.total %></td>
                                         </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <p class="text-muted">No route data available</p>
+                                <% } %>
+                            </div>
                         </div>
-                    <% } else { %>
-                        <p class="text-muted">No route data available</p>
-                    <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile view -->
+            <div class="d-md-none">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-globe me-2"></i>Top Countries</h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (countryStats.length > 0) { %>
+                                    <% countryStats.slice(0, 5).forEach(function(country) { %>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                            <div>
+                                                <strong><%= country._id %></strong>
+                                                <br><small class="text-muted"><%= country.uniqueIPCount %> unique IPs</small>
+                                            </div>
+                                            <span class="badge bg-primary"><%= country.count %> visits</span>
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="text-muted">No country data available</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-route me-2"></i>Top Routes</h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (routeStats.length > 0) { %>
+                                    <% routeStats.slice(0, 5).forEach(function(route) { %>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                            <div class="flex-grow-1">
+                                                <code class="text-break"><%= route._id %></code>
+                                            </div>
+                                            <span class="badge bg-info flex-shrink-0"><%= route.total %> requests</span>
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="text-muted">No route data available</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -140,124 +197,264 @@
                 </div>
                 <div class="card-body">
                     <% if (trackerData.length > 0) { %>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>IP Address</th>
-                                        <th>Country</th>
-                                        <th>City</th>
-                                        <th>Visits</th>
-                                        <th>Last Visit</th>
-                                        <th>Good/Bad</th>
-                                        <th>Routes</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% trackerData.forEach(function(visitor) { %>
+                        <!-- Desktop table view -->
+                        <div class="d-none d-md-block">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
                                         <tr>
-                                            <td><code><%= visitor.ip %></code></td>
-                                            <td><%= visitor.country %></td>
-                                            <td><%= visitor.city %></td>
-                                            <td>
-                                                <span class="badge bg-primary"><%= visitor.timesVisited %></span>
-                                                <% if (visitor.isFirstVisit) { %>
-                                                    <span class="badge bg-success ms-1">New</span>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <small><%= visitor.lastVisitDate %><br><%= visitor.lastVisitTime %></small>
-                                            </td>
-                                            <td>
-                                                <%
-                                                // Sum of all good route hits
-                                                let totalGoodRequests = 0;
-                                                if (visitor.goodRoutes) {
-                                                    for (let count of visitor.goodRoutes.values()) {
-                                                    totalGoodRequests += count;
+                                            <th>IP Address</th>
+                                            <th>Country</th>
+                                            <th>City</th>
+                                            <th>Visits</th>
+                                            <th>Last Visit</th>
+                                            <th>Good/Bad</th>
+                                            <th>Routes</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% trackerData.forEach(function(visitor) { %>
+                                            <tr>
+                                                <td><code><%= visitor.ip %></code></td>
+                                                <td><%= visitor.country %></td>
+                                                <td><%= visitor.city %></td>
+                                                <td>
+                                                    <span class="badge bg-primary"><%= visitor.timesVisited %></span>
+                                                    <% if (visitor.isFirstVisit) { %>
+                                                        <span class="badge bg-success ms-1">New</span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <small><%= visitor.lastVisitDate %><br><%= visitor.lastVisitTime %></small>
+                                                </td>
+                                                <td>
+                                                    <%
+                                                    // Sum of all good route hits
+                                                    let totalGoodRequests = 0;
+                                                    if (visitor.goodRoutes) {
+                                                        for (let count of visitor.goodRoutes.values()) {
+                                                        totalGoodRequests += count;
+                                                        }
                                                     }
-                                                }
-                                                // Sum of all bad route hits
-                                                let totalBadRequests = 0;
-                                                if (visitor.badRoutes) {
-                                                    for (let count of visitor.badRoutes.values()) {
-                                                    totalBadRequests += count;
+                                                    // Sum of all bad route hits
+                                                    let totalBadRequests = 0;
+                                                    if (visitor.badRoutes) {
+                                                        for (let count of visitor.badRoutes.values()) {
+                                                        totalBadRequests += count;
+                                                        }
                                                     }
-                                                }
-                                                %>
-                                                <span class="badge bg-success"><%= totalGoodRequests %></span>
-                                                <span class="badge bg-danger"><%= totalBadRequests %></span>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse" 
-                                                        data-bs-target="#routes-<%= visitor._id %>" aria-expanded="false">
-                                                    View Routes
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
+                                                    %>
+                                                    <span class="badge bg-success"><%= totalGoodRequests %></span>
+                                                    <span class="badge bg-danger"><%= totalBadRequests %></span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse" 
+                                                            data-bs-target="#routes-<%= visitor._id %>" aria-expanded="false">
+                                                        View Routes
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" 
+                                                                data-bs-target="#details-<%= visitor._id %>" aria-expanded="false">
+                                                            <i class="fas fa-info-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="8" class="p-0">
+                                                    <div class="collapse" id="routes-<%= visitor._id %>">
+                                                        <div class="card card-body">
+                                                            <h6>Route Access History</h6>
+                                                            
+                                                            <!-- Good Routes -->
+                                                            <div class="mb-3">
+                                                                <h6 class="text-success">
+                                                                    <i class="fas fa-check-circle me-1"></i>Good Routes
+                                                                </h6>
+                                                                <% if (visitor.goodRoutes && visitor.goodRoutes.size > 0) { %>
+                                                                    <div class="row">
+                                                                        <% Array.from(visitor.goodRoutes.entries()).forEach(function(entry) { %>
+                                                                        <div class="col-md-4 mb-2">
+                                                                            <code class="text-break"><%= entry[0] %></code>
+                                                                            <span class="badge bg-success ms-2"><%= entry[1] %></span>
+                                                                        </div>
+                                                                        <% }) %>
+                                                                    </div>
+                                                                <% } else { %>
+                                                                    <p class="text-muted">No good routes</p>
+                                                                <% } %>
+                                                            </div>
+                                                            
+                                                            <!-- Bad Routes -->
+                                                            <div>
+                                                                <h6 class="text-danger">
+                                                                    <i class="fas fa-times-circle me-1"></i>Bad Routes
+                                                                </h6>
+                                                                <% if (visitor.badRoutes && visitor.badRoutes.size > 0) { %>
+                                                                    <div class="row">
+                                                                        <% Array.from(visitor.badRoutes.entries()).forEach(function(entry) { %>
+                                                                        <div class="col-md-4 mb-2">
+                                                                            <code class="text-break"><%= entry[0] %></code>
+                                                                            <span class="badge bg-danger ms-2"><%= entry[1] %></span>
+                                                                        </div>
+                                                                        <% }) %>
+                                                                    </div>
+                                                                <% } else { %>
+                                                                    <p class="text-muted">No bad routes</p>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="8" class="p-0">
+                                                    <div class="collapse" id="details-<%= visitor._id %>">
+                                                        <div class="card card-body">
+                                                            <h6>Visitor Details</h6>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <strong>First Visit:</strong> <%= visitor.createdAt.toLocaleDateString() %><br>
+                                                                    <strong>Last Visit:</strong> <%= visitor.lastVisitDate %> at <%= visitor.lastVisitTime %><br>
+                                                                    <% let totalRequests = 0;
+                                                                        if (visitor.goodRoutes) {
+                                                                            for (let val of visitor.goodRoutes.values()) {
+                                                                            totalRequests += val;
+                                                                            }
+                                                                        }
+                                                                        if (visitor.badRoutes) {
+                                                                            for (let val of visitor.badRoutes.values()) {
+                                                                            totalRequests += val;
+                                                                            }
+                                                                        }
+                                                                    %>
+                                                                    <strong>Total Requests:</strong> <%= totalRequests %>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <strong>User Agent:</strong><br>
+                                                                    <small class="text-muted"><%= visitor.userAgent %></small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Mobile card view -->
+                        <div class="d-md-none">
+                            <div class="row">
+                                <% trackerData.forEach(function(visitor) { %>
+                                    <div class="col-12 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <!-- Header with IP and location -->
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div>
+                                                        <h6 class="card-title mb-1">
+                                                            <code><%= visitor.ip %></code>
+                                                        </h6>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-globe"></i> <%= visitor.country %>, <%= visitor.city %>
+                                                        </small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-primary"><%= visitor.timesVisited %></span>
+                                                        <% if (visitor.isFirstVisit) { %>
+                                                            <span class="badge bg-success d-block mt-1">New</span>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Last visit info -->
+                                                <div class="mb-2">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock"></i> 
+                                                        <%= visitor.lastVisitDate %> <%= visitor.lastVisitTime %>
+                                                    </small>
+                                                </div>
+                                                
+                                                <!-- Good/Bad requests -->
+                                                <div class="mb-2">
+                                                    <%
+                                                    // Sum of all good route hits
+                                                    let totalGoodRequests = 0;
+                                                    if (visitor.goodRoutes) {
+                                                        for (let count of visitor.goodRoutes.values()) {
+                                                        totalGoodRequests += count;
+                                                        }
+                                                    }
+                                                    // Sum of all bad route hits
+                                                    let totalBadRequests = 0;
+                                                    if (visitor.badRoutes) {
+                                                        for (let count of visitor.badRoutes.values()) {
+                                                        totalBadRequests += count;
+                                                        }
+                                                    }
+                                                    %>
+                                                    <span class="badge bg-success me-1"><%= totalGoodRequests %> Good</span>
+                                                    <span class="badge bg-danger"><%= totalBadRequests %> Bad</span>
+                                                </div>
+                                                
+                                                <!-- Action buttons -->
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-sm btn-outline-info flex-fill" type="button" data-bs-toggle="collapse" 
+                                                            data-bs-target="#routes-<%= visitor._id %>" aria-expanded="false">
+                                                        <i class="fas fa-route"></i> Routes
+                                                    </button>
                                                     <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" 
                                                             data-bs-target="#details-<%= visitor._id %>" aria-expanded="false">
                                                         <i class="fas fa-info-circle"></i>
                                                     </button>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="8" class="p-0">
-                                                <div class="collapse" id="routes-<%= visitor._id %>">
-                                                    <div class="card card-body">
-                                                        <h6>Route Access History</h6>
-                                                        
-                                                        <!-- Good Routes -->
-                                                        <div class="mb-3">
+
+                                                <!-- Mobile collapsible sections -->
+                                                <div class="mt-3">
+                                                    <!-- Routes collapse -->
+                                                    <div class="collapse" id="routes-<%= visitor._id %>">
+                                                        <div class="card card-body bg-light">
                                                             <h6 class="text-success">
                                                                 <i class="fas fa-check-circle me-1"></i>Good Routes
                                                             </h6>
                                                             <% if (visitor.goodRoutes && visitor.goodRoutes.size > 0) { %>
-                                                                <div class="row">
-                                                                    <% Array.from(visitor.goodRoutes.entries()).forEach(function(entry) { %>
-                                                                        <div class="col-md-4 mb-2">
-                                                                            <code><%= entry[0] %></code>
-                                                                            <span class="badge bg-success ms-2"><%= entry[1] %></span>
-                                                                        </div>
-                                                                    <% }) %>
-                                                                </div>
+                                                                <% Array.from(visitor.goodRoutes.entries()).forEach(function(entry) { %>
+                                                                    <div class="d-flex justify-content-between align-items-center mb-1 p-1 bg-white rounded">
+                                                                        <code class="text-break flex-grow-1"><%= entry[0] %></code>
+                                                                        <span class="badge bg-success ms-2 flex-shrink-0"><%= entry[1] %></span>
+                                                                    </div>
+                                                                <% }) %>
                                                             <% } else { %>
                                                                 <p class="text-muted">No good routes</p>
                                                             <% } %>
-                                                        </div>
-                                                        
-                                                        <!-- Bad Routes -->
-                                                        <div>
-                                                            <h6 class="text-danger">
+                                                            
+                                                            <h6 class="text-danger mt-3">
                                                                 <i class="fas fa-times-circle me-1"></i>Bad Routes
                                                             </h6>
                                                             <% if (visitor.badRoutes && visitor.badRoutes.size > 0) { %>
-                                                                <div class="row">
-                                                                    <% Array.from(visitor.badRoutes.entries()).forEach(function(entry) { %>
-                                                                        <div class="col-md-4 mb-2">
-                                                                            <code><%= entry[0] %></code>
-                                                                            <span class="badge bg-danger ms-2"><%= entry[1] %></span>
-                                                                        </div>
-                                                                    <% }) %>
-                                                                </div>
+                                                                <% Array.from(visitor.badRoutes.entries()).forEach(function(entry) { %>
+                                                                    <div class="d-flex justify-content-between align-items-center mb-1 p-1 bg-white rounded">
+                                                                        <code class="text-break flex-grow-1"><%= entry[0] %></code>
+                                                                        <span class="badge bg-danger ms-2 flex-shrink-0"><%= entry[1] %></span>
+                                                                    </div>
+                                                                <% }) %>
                                                             <% } else { %>
                                                                 <p class="text-muted">No bad routes</p>
                                                             <% } %>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="8" class="p-0">
-                                                <div class="collapse" id="details-<%= visitor._id %>">
-                                                    <div class="card card-body">
-                                                        <h6>Visitor Details</h6>
-                                                        <div class="row">
-                                                            <div class="col-md-6">
+                                                    
+                                                    <!-- Details collapse -->
+                                                    <div class="collapse" id="details-<%= visitor._id %>">
+                                                        <div class="card card-body bg-light">
+                                                            <h6>Visitor Details</h6>
+                                                            <div class="mb-2">
                                                                 <strong>First Visit:</strong> <%= visitor.createdAt.toLocaleDateString() %><br>
                                                                 <strong>Last Visit:</strong> <%= visitor.lastVisitDate %> at <%= visitor.lastVisitTime %><br>
                                                                 <% let totalRequests = 0;
@@ -274,42 +471,68 @@
                                                                 %>
                                                                 <strong>Total Requests:</strong> <%= totalRequests %>
                                                             </div>
-                                                            <div class="col-md-6">
+                                                            <div>
                                                                 <strong>User Agent:</strong><br>
                                                                 <small class="text-muted"><%= visitor.userAgent %></small>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
                         </div>
 
                         <!-- Pagination -->
                         <% if (pagination.totalPages > 1) { %>
                             <nav aria-label="Tracker pagination">
-                                <ul class="pagination justify-content-center">
+                                <!-- Desktop pagination -->
+                                <ul class="pagination justify-content-center d-none d-md-flex">
                                     <% if (pagination.hasPrevPage) { %>
                                         <li class="page-item">
                                             <a class="page-link" href="/admin/tracker?page=<%= pagination.currentPage - 1 %>&limit=<%= pagination.limit %>">Previous</a>
                                         </li>
                                     <% } %>
-                                    
+                                     
                                     <% for (let i = 1; i <= pagination.totalPages; i++) { %>
                                         <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
                                             <a class="page-link" href="/admin/tracker?page=<%= i %>&limit=<%= pagination.limit %>"><%= i %></a>
                                         </li>
                                     <% } %>
-                                    
+                                     
                                     <% if (pagination.hasNextPage) { %>
                                         <li class="page-item">
                                             <a class="page-link" href="/admin/tracker?page=<%= pagination.currentPage + 1 %>&limit=<%= pagination.limit %>">Next</a>
                                         </li>
                                     <% } %>
                                 </ul>
+
+                                <!-- Mobile pagination -->
+                                <div class="d-md-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <% if (pagination.hasPrevPage) { %>
+                                            <a class="btn btn-outline-primary flex-fill" href="/admin/tracker?page=<%= pagination.currentPage - 1 %>&limit=<%= pagination.limit %>">
+                                                <i class="fas fa-chevron-left"></i> Previous
+                                            </a>
+                                        <% } else { %>
+                                            <div class="flex-fill"></div>
+                                        <% } %>
+                                        
+                                        <span class="px-3 text-muted">
+                                            <%= pagination.currentPage %> / <%= pagination.totalPages %>
+                                        </span>
+                                        
+                                        <% if (pagination.hasNextPage) { %>
+                                            <a class="btn btn-outline-primary flex-fill" href="/admin/tracker?page=<%= pagination.currentPage + 1 %>&limit=<%= pagination.limit %>">
+                                                Next <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        <% } else { %>
+                                            <div class="flex-fill"></div>
+                                        <% } %>
+                                    </div>
+                                </div>
                             </nav>
                         <% } %>
                     <% } else { %>

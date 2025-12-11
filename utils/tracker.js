@@ -9,6 +9,7 @@ const trackRequest = async (req, res, next) => {
       "/javascripts/",
       "/images/",
       "/manifest/",
+      "/.well-known/",
     ];
 
     const shouldSkip = skipPaths.some((p) => req.path.startsWith(p));
@@ -54,12 +55,10 @@ const trackRequest = async (req, res, next) => {
           const url = req.route.path;
           const current = tracker.goodRoutes.get(url) || 0;
           tracker.goodRoutes.set(url, current + 1);
-          console.log("Good:", url);
         } else {
           const url = req.originalUrl;
           const current = tracker.badRoutes.get(url) || 0;
           tracker.badRoutes.set(url, current + 1);
-          console.log("Bad:", url);
         }
 
         await tracker.save();

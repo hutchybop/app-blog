@@ -3,6 +3,19 @@
   window.addEventListener(
     "load",
     function () {
+      // Handle delete confirmation forms
+      const deleteForms = document.getElementsByClassName("delete-form");
+      Array.prototype.filter.call(deleteForms, function (form) {
+        form.addEventListener("submit", function (event) {
+          const message = form.getAttribute("data-confirm-message");
+          if (!window.confirm(message)) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        });
+      });
+
       // Fetch all the forms we want to apply custom Bootstrap validation styles to
       const forms = document.getElementsByClassName("validated-form");
       // Loop over them and prevent submission

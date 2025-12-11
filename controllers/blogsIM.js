@@ -19,25 +19,6 @@ module.exports.index = async (req, res) => {
   });
 };
 
-// NEW - BlogIM (get)
-module.exports.new = async (req, res) => {
-  // Creates an array of num from the IM posts and chooses the biggest number
-  const posts = await BlogIM.find();
-  let nums = [];
-  for (let post of posts) {
-    nums.push(post.num);
-  }
-  let num = Math.max.apply(Math, nums);
-
-  res.render("blogim/new", { page: "Blog", title: "Create BlogIM", num });
-};
-
-// CREATE - BlogIM (post)
-module.exports.create = async (req, res) => {
-  const newPost = await BlogIM.create(req.body);
-  res.redirect(`/blogim/${newPost._id}`);
-};
-
 // SHOW - BlogIM (get)
 module.exports.show = async (req, res) => {
   const post = await BlogIM.findById(req.params.id).populate({
@@ -48,18 +29,4 @@ module.exports.show = async (req, res) => {
     },
   });
   res.render("blogim/show", { page: "Blog", title: post.title, post });
-};
-
-// UPDATE - BlogIM (put)
-module.exports.update = async (req, res) => {
-  const { id } = req.params;
-  const updatedPost = await BlogIM.findByIdAndUpdate(id, req.body);
-  res.redirect(`/blogim/${updatedPost.id}`);
-};
-
-// DELETE - BlogIM (delete)
-module.exports.delete = async (req, res) => {
-  const { id } = req.params;
-  await BlogIM.findByIdAndRemove(id);
-  res.redirect("/");
 };

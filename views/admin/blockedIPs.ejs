@@ -5,14 +5,10 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="mb-4">
                 <h1>
                     <i class="fas fa-shield-alt me-2"></i>Blocked IP Management
                 </h1>
-                <div>
-                    <a href="/admin" class="btn btn-outline-primary">Dashboard</a>
-                    <a href="/admin/tracker" class="btn btn-outline-info">Analytics</a>
-                </div>
             </div>
         </div>
     </div>
@@ -34,7 +30,7 @@
                                    title="Please enter a valid IP address (e.g., 192.168.1.1)">
                             <div class="form-text">Enter the IP address you want to block from accessing your site.</div>
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
+                        <div class="col-md-4 d-flex align-items-end align-items-center">
                             <button type="submit" class="btn btn-danger w-100">
                                 <i class="fas fa-ban me-2"></i>Block IP
                             </button>
@@ -65,25 +61,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% blockedIPs.forEach(function(ip) { %>
-                                        <tr>
-                                            <td><code><%= ip %></code></td>
-                                            <td>
-                                                <span class="badge bg-danger">
-                                                    <i class="fas fa-ban me-1"></i>Blocked
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <form action="/admin/unblock-ip/<%= encodeURIComponent(ip) %>" 
-                                                      method="POST" 
-                                                      onsubmit="return confirm('Are you sure you want to unblock this IP address?');">
-                                                    <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="submit" class="btn btn-sm btn-success">
-                                                        <i class="fas fa-unlock me-1"></i>Unblock
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
+                                    <% blockedIPs.forEach(function(ip) { 
+                                        const safeIP = ip.replace(/\./g, "_"); 
+                                    %>
+                                    <tr>
+                                        <td><code><%= ip %></code></td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-ban me-1"></i>Blocked
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form action="/admin/unblock-ip?_method=DELETE" 
+                                                method="POST" 
+                                                onsubmit="return confirm('Are you sure you want to unblock this IP address?');">
+                                                <input type="hidden" name="ip" value="<%= safeIP %>">
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-unlock me-1"></i>Unblock
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
                                     <% }) %>
                                 </tbody>
                             </table>
