@@ -297,36 +297,48 @@ module.exports.tracker = async (req, res) => {
   const skip = (page - 1) * limit;
 
   // Get blocked IPs for statistics
-  const blockedIPs = await getBlockedIPs();
   const statsArray = await Tracker.aggregate([
+    {
+      // Convert Maps to arrays and sum their values
+      $project: {
+        goodRouteValues: { $objectToArray: "$goodRoutes" },
+        badRouteValues: { $objectToArray: "$badRoutes" },
+        ip: 1,
+      },
+    },
+    {
+      $project: {
+        goodSum: { $sum: "$goodRouteValues.v" },
+        badSum: { $sum: "$badRouteValues.v" },
+        ip: 1,
+      },
+    },
     {
       $group: {
         _id: null,
-        totalGoodRequests: { $sum: "$goodRequests" },
-        totalBadRequests: { $sum: "$badRequests" },
+        totalGoodRoutes: { $sum: "$goodSum" },
+        totalBadRoutes: { $sum: "$badSum" },
         uniqueIPs: { $addToSet: "$ip" },
       },
     },
     {
       $project: {
         _id: 0,
-        totalGoodRequests: 1,
-        totalBadRequests: 1,
-        totalRequests: { $sum: ["$totalGoodRequests", "$totalBadRequests"] },
+        totalGoodRoutes: 1,
+        totalBadRoutes: 1,
+        totalRoutes: { $sum: ["$totalGoodRoutes", "$totalBadRoutes"] },
         numberOfUniqueIPs: { $size: "$uniqueIPs" },
       },
     },
   ]);
-
-  // aggregation returns an array, so get the first element
   const stats = statsArray[0] || {
-    totalGoodRequests: 0,
-    totalBadRequests: 0,
-    totalRequests: 0,
+    totalGoodRoutes: 0,
+    totalBadRoutes: 0,
+    totalRoutes: 0,
     numberOfUniqueIPs: 0,
   };
-
   // Add blocked IPs count
+  const blockedIPs = await getBlockedIPs();
   stats.numberOfBlockedIPs = blockedIPs.length;
 
   // Get country statistics
