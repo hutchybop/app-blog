@@ -1,5 +1,31 @@
 # Development Log
 
+## Session 6
+
+### Thursday December 11th
+
+<br>
+
+**Summary:** This session focused on bug fixes and improvements to the request tracker system, including fixing good/bad request numbering logic, updating route tracking functionality, improving dashboard navigation links, and optimizing blog route handling.
+
+**Git Branch:** main <br>
+**Git commits:** <br>
+1637e24, 22a6781, 6e86c94, 66aa105, 469ce28, c8293df, 0b73703, 054a09f
+
+**Session git history:**
+
+- update blog routes - _Improved blog route handling and navigation structure_
+- update dashboard links - _Enhanced admin dashboard navigation and user experience_
+- fix good/bad request numbering 20251211-1752 - _Corrected request categorization logic in analytics tracking_
+- update route tracker 20251211-1729 - _Enhanced route tracking functionality and data collection_
+- update tracker 20251211-1722 - _Improved visitor analytics tracking system_
+- update tracker - _General tracker system improvements and optimizations_
+- update reset email route 20251208-2338 - _Fixed password reset email routing functionality_
+- update dev log 20251208-2323 - _Updated development documentation with session information_
+
+---
+<br>
+
 ## Session 5
 
 ### Monday December 8th
