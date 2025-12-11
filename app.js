@@ -385,6 +385,9 @@ app.use((req, res) => {
   });
 });
 
+// Tracker middleware - place after IP middleware but before compression
+app.use(trackRequest);
+
 // Error Handler, from utils.
 app.use(errorHandler);
 

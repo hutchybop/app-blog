@@ -10,9 +10,11 @@ const {
 
 // ADMIN DASHBOARD - Admin dashboard (get)
 module.exports.dashboard = async (req, res) => {
+  // Required for the amdin boilerplate
   const posts = await BlogIM.find().sort({ createdAt: -1 });
   const flaggedReviews = await Review.find({ isFlagged: true });
   const allReviews = await Review.find({});
+
   const recentPosts = posts.slice(0, 5);
 
   res.render("admin/dashboard", {
@@ -26,10 +28,12 @@ module.exports.dashboard = async (req, res) => {
 
 // ADMIN INDEX - BlogIM for admin management (get)
 module.exports.posts = async (req, res) => {
-  let posts = await BlogIM.find().sort({ createdAt: -1 });
-  const sortOrder = req.query.sort || "newest";
+  // Required for the amdin boilerplate
+  const posts = await BlogIM.find().sort({ createdAt: -1 });
   const flaggedReviews = await Review.find({ isFlagged: true });
   const allReviews = await Review.find({});
+
+  const sortOrder = req.query.sort || "newest";
 
   if (sortOrder === "oldest") {
     posts.sort((a, b) => a.num.toString().localeCompare(b.num.toString()));
@@ -50,17 +54,17 @@ module.exports.posts = async (req, res) => {
 
 // ADMIN NEW - BlogIM (get)
 module.exports.newPost = async (req, res) => {
+  // Required for the amdin boilerplate
+  const posts = await BlogIM.find().sort({ createdAt: -1 });
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
+
   // Creates an array of num from the IM posts and chooses the biggest number
-  const posts = await BlogIM.find();
   let nums = [];
   for (let post of posts) {
     nums.push(post.num);
   }
   let num = Math.max.apply(Math, nums);
-
-  // Get review counts for admin pages
-  const flaggedReviews = await Review.find({ isFlagged: true });
-  const allReviews = await Review.find({});
 
   res.render("admin/new", {
     title: "Admin - Create Post",
@@ -80,13 +84,13 @@ module.exports.createPost = async (req, res) => {
 
 // ADMIN EDIT - BlogIM (get)
 module.exports.editPost = async (req, res) => {
-  const { id } = req.params;
-  const post = await BlogIM.findById(id);
-
-  // Get review counts for admin pages
+  // Required for the amdin boilerplate
+  const posts = await BlogIM.find().sort({ createdAt: -1 });
   const flaggedReviews = await Review.find({ isFlagged: true });
   const allReviews = await Review.find({});
-  const posts = await BlogIM.find();
+
+  const { id } = req.params;
+  const post = await BlogIM.findById(id);
 
   res.render("admin/edit", {
     title: "Admin - Edit Post",
@@ -116,12 +120,12 @@ module.exports.deletePost = async (req, res) => {
 
 // ADMIN FLAGGED REVIEWS - View flagged reviews (get)
 module.exports.flaggedReviews = async (req, res) => {
+  // Required for the amdin boilerplate
+  const posts = await BlogIM.find().sort({ createdAt: -1 });
+  const allReviews = await Review.find({});
   const flaggedReviews = await Review.find({ isFlagged: true })
     .populate("author", "username email")
     .sort({ createdAt: -1 });
-
-  const allReviews = await Review.find({});
-  const posts = await BlogIM.find();
 
   res.render("admin/flaggedReviews", {
     flaggedReviews,
@@ -167,13 +171,13 @@ module.exports.updateFlaggedReview = async (req, res) => {
 
 // ADMIN ALL REVIEWS - View all reviews with management options (get)
 module.exports.allReviews = async (req, res) => {
+  // Required for the amdin boilerplate
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const posts = await BlogIM.find();
   const allReviews = await Review.find({})
     .populate("author", "username email")
     .populate("blogIM", "title")
     .sort({ createdAt: -1 });
-
-  const flaggedReviews = await Review.find({ isFlagged: true });
-  const posts = await BlogIM.find();
 
   res.render("admin/allReviews", {
     allReviews,
@@ -230,12 +234,12 @@ module.exports.deleteReviewWithReason = async (req, res) => {
 
 // ADMIN BLOCKED IPS - View and manage blocked IPs (get)
 module.exports.blockedIPs = async (req, res) => {
-  const blockedIPs = await getBlockedIPs();
-
-  // Get review counts for admin pages
+  // Required for the amdin boilerplate
   const flaggedReviews = await Review.find({ isFlagged: true });
   const allReviews = await Review.find({});
   const posts = await BlogIM.find();
+
+  const blockedIPs = await getBlockedIPs();
 
   res.render("admin/blockedIPs", {
     title: "Blocked IPs - Admin",
@@ -283,34 +287,47 @@ module.exports.unblockIP = async (req, res) => {
 
 // ADMIN TRACKER - View tracker analytics (get)
 module.exports.tracker = async (req, res) => {
+  // Required for the amdin boilerplate
+  const flaggedReviews = await Review.find({ isFlagged: true });
+  const allReviews = await Review.find({});
+  const posts = await BlogIM.find();
+
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 50;
   const skip = (page - 1) * limit;
 
   // Get blocked IPs for statistics
   const blockedIPs = await getBlockedIPs();
-
-  // Get overall statistics
-  const totalStats = await Tracker.aggregate([
+  const statsArray = await Tracker.aggregate([
     {
       $group: {
         _id: null,
-        totalVisits: { $sum: "$timesVisited" },
-        uniqueIPs: { $addToSet: "$ip" },
         totalGoodRequests: { $sum: "$goodRequests" },
         totalBadRequests: { $sum: "$badRequests" },
-        totalFirstTimeVisits: { $sum: { $cond: ["$isFirstVisit", 1, 0] } },
+        uniqueIPs: { $addToSet: "$ip" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalGoodRequests: 1,
+        totalBadRequests: 1,
+        totalRequests: { $sum: ["$totalGoodRequests", "$totalBadRequests"] },
+        numberOfUniqueIPs: { $size: "$uniqueIPs" },
       },
     },
   ]);
 
-  const stats = totalStats[0] || {
-    totalVisits: 0,
-    uniqueIPs: [],
+  // aggregation returns an array, so get the first element
+  const stats = statsArray[0] || {
     totalGoodRequests: 0,
     totalBadRequests: 0,
-    totalFirstTimeVisits: 0,
+    totalRequests: 0,
+    numberOfUniqueIPs: 0,
   };
+
+  // Add blocked IPs count
+  stats.numberOfBlockedIPs = blockedIPs.length;
 
   // Get country statistics
   const countryStats = await Tracker.aggregate([
@@ -336,6 +353,30 @@ module.exports.tracker = async (req, res) => {
     },
   ]);
 
+  // Get route statistics
+  const routeStats = await Tracker.aggregate([
+    {
+      $project: {
+        good: { $objectToArray: "$goodRoutes" },
+        bad: { $objectToArray: "$badRoutes" },
+      },
+    },
+    {
+      $project: {
+        routes: { $concatArrays: ["$good", "$bad"] },
+      },
+    },
+    { $unwind: "$routes" },
+    {
+      $group: {
+        _id: "$routes.k",
+        total: { $sum: "$routes.v" },
+      },
+    },
+    { $sort: { total: -1 } },
+    { $limit: 10 },
+  ]);
+
   // Get recent tracker data with pagination
   const trackerData = await Tracker.find()
     .sort({ lastVisitDate: -1, lastVisitTime: -1 })
@@ -345,38 +386,11 @@ module.exports.tracker = async (req, res) => {
   const totalTrackerEntries = await Tracker.countDocuments();
   const totalPages = Math.ceil(totalTrackerEntries / limit);
 
-  // Get route statistics
-  const routeStats = await Tracker.aggregate([
-    { $unwind: "$routes" },
-    {
-      $group: {
-        _id: "$routes.k",
-        count: { $sum: "$routes.v" },
-      },
-    },
-    {
-      $sort: { count: -1 },
-    },
-    {
-      $limit: 20,
-    },
-  ]);
-
-  // Get review counts for admin pages
-  const flaggedReviews = await Review.find({ isFlagged: true });
-  const allReviews = await Review.find({});
-  const posts = await BlogIM.find();
-
   res.render("admin/tracker", {
     title: "Tracker Analytics - Admin",
-    trackerData,
-    stats: {
-      ...stats,
-      uniqueIPCount: stats.uniqueIPs.length,
-      totalRequests: stats.totalGoodRequests + stats.totalBadRequests,
-      blockedIPCount: blockedIPs.length,
-    },
+    stats,
     countryStats,
+    trackerData,
     routeStats,
     pagination: {
       currentPage: page,

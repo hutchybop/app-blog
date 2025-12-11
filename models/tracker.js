@@ -27,7 +27,12 @@ const trackerSchema = new mongoose.Schema(
       type: String,
       default: () => new Date().toLocaleTimeString("en-GB", { hour12: false }),
     },
-    routes: {
+    goodRoutes: {
+      type: Map,
+      of: Number,
+      default: new Map(),
+    },
+    badRoutes: {
       type: Map,
       of: Number,
       default: new Map(),
@@ -39,14 +44,6 @@ const trackerSchema = new mongoose.Schema(
     isFirstVisit: {
       type: Boolean,
       default: true,
-    },
-    badRequests: {
-      type: Number,
-      default: 0,
-    },
-    goodRequests: {
-      type: Number,
-      default: 0,
     },
   },
   {

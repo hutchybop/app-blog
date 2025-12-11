@@ -3,7 +3,6 @@ const { reviewIp } = require("./ipLookup");
 
 const trackRequest = async (req, res, next) => {
   try {
-    // Skip tracking for static assets and API calls that don't need tracking
     const skipPaths = [
       "/favicon.ico",
       "/stylesheets/",
@@ -12,24 +11,28 @@ const trackRequest = async (req, res, next) => {
       "/manifest/",
     ];
 
-    const shouldSkip = skipPaths.some((path) => req.path.startsWith(path));
-    if (shouldSkip) {
-      return next();
-    }
+    const shouldSkip = skipPaths.some((p) => req.path.startsWith(p));
+    if (shouldSkip) return next();
 
+    // Lookup IP data
     const { ip, countryName, cityName } = await reviewIp(req);
-    const route = req.route ? req.route.path : req.path;
     const userAgent = req.get("User-Agent") || "UNKNOWN";
 
-    // Determine if this is a good or bad request
-    const isGoodRequest = res.statusCode < 400;
-
-    // Find existing tracker entry or create new one
     let tracker = await Tracker.findOne({ ip });
 
-    if (tracker) {
-      // Update existing entry
-      tracker.timesVisited += 1;
+    if (!tracker) {
+      // Create new
+      tracker = new Tracker({
+        ip,
+        country: countryName,
+        city: cityName,
+        userAgent,
+        timesVisited: 1,
+        isFirstVisit: true,
+      });
+    } else {
+      // Update existing
+      tracker.timesVisited++;
       tracker.lastVisitDate = new Date().toLocaleDateString("en-GB");
       tracker.lastVisitTime = new Date().toLocaleTimeString("en-GB", {
         hour12: false,
@@ -37,43 +40,35 @@ const trackRequest = async (req, res, next) => {
       tracker.isFirstVisit = false;
       tracker.userAgent = userAgent;
 
-      // Update route count
-      const currentCount = tracker.routes.get(route) || 0;
-      tracker.routes.set(route, currentCount + 1);
-
-      // Update good/bad request counts
-      if (isGoodRequest) {
-        tracker.goodRequests += 1;
-      } else {
-        tracker.badRequests += 1;
-      }
-
-      await tracker.save();
-    } else {
-      // Create new entry
-      const routes = new Map();
-      routes.set(route, 1);
-
-      tracker = new Tracker({
-        ip,
-        country: countryName,
-        city: cityName,
-        timesVisited: 1,
-        routes: routes,
-        userAgent: userAgent,
-        isFirstVisit: true,
-        goodRequests: isGoodRequest ? 1 : 0,
-        badRequests: isGoodRequest ? 0 : 1,
-      });
-
-      await tracker.save();
+      if (tracker.ip === "UNKNOWN" && ip !== "UNKNOWN") tracker.ip = ip;
+      if (tracker.country === "UNKNOWN" && countryName !== "UNKNOWN")
+        tracker.country = countryName;
+      if (tracker.city === "UNKNOWN" && cityName !== "UNKNOWN")
+        tracker.city = cityName;
     }
 
-    // Attach tracker info to request for potential use in routes
-    req.trackerInfo = tracker;
+    // IMPORTANT: Save AFTER response is fully processed
+    res.on("finish", async () => {
+      try {
+        if (req.route) {
+          const url = req.route.path;
+          const current = tracker.goodRoutes.get(url) || 0;
+          tracker.goodRoutes.set(url, current + 1);
+          console.log("Good:", url);
+        } else {
+          const url = req.originalUrl;
+          const current = tracker.badRoutes.get(url) || 0;
+          tracker.badRoutes.set(url, current + 1);
+          console.log("Bad:", url);
+        }
+
+        await tracker.save();
+      } catch (err) {
+        console.error("Failed to update tracker on finish:", err);
+      }
+    });
   } catch (error) {
     console.error("Tracker middleware error:", error);
-    // Don't block the request if tracking fails
   }
 
   next();
