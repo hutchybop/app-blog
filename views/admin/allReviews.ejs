@@ -1,325 +1,266 @@
 <% layout('admin/adminBoilerplate') %>
 <% contentTitle = "All Reviews Management" %>
-                    <% if (allReviews.length === 0) { %>
-                        <div class="alert alert-info">
-                            <h4>No reviews found</h4>
-                            <p>There are currently no reviews in the system.</p>
-                        </div>
-                    <% } else { %>
-                        <!-- Sort options -->
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="/admin/all-reviews?sort=newest" class="btn <%= (typeof sortOrder !== 'undefined' && sortOrder === 'newest') ? 'btn-primary' : 'btn-outline-primary' %> flex-fill flex-md-grow-0">Newest First</a>
-                                <a href="/admin/all-reviews?sort=oldest" class="btn <%= (typeof sortOrder !== 'undefined' && sortOrder === 'oldest') ? 'btn-primary' : 'btn-outline-primary' %> flex-fill flex-md-grow-0">Oldest First</a>
-                                <a href="/admin/all-reviews?sort=flagged" class="btn <%= (typeof sortOrder !== 'undefined' && sortOrder === 'flagged') ? 'btn-primary' : 'btn-outline-primary' %> flex-fill flex-md-grow-0">Flagged First</a>
+<% if (allReviews.length === 0) { %>
+    <div class="alert alert-info">
+        <h4>No reviews found</h4>
+        <p>There are currently no reviews in the system.</p>
+    </div>
+<% } else { %>
+    <!-- Sort options -->
+    <div class="mb-3">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="/admin/all-reviews?sort=newest" class="btn <%= (typeof sortOrder !== 'undefined' && sortOrder === 'newest') ? 'btn-primary' : 'btn-outline-primary' %> flex-fill flex-md-grow-0">Newest First</a>
+            <a href="/admin/all-reviews?sort=oldest" class="btn <%= (typeof sortOrder !== 'undefined' && sortOrder === 'oldest') ? 'btn-primary' : 'btn-outline-primary' %> flex-fill flex-md-grow-0">Oldest First</a>
+            <a href="/admin/all-reviews?sort=flagged" class="btn <%= (typeof sortOrder !== 'undefined' && sortOrder === 'flagged') ? 'btn-primary' : 'btn-outline-primary' %> flex-fill flex-md-grow-0">Flagged First</a>
+        </div>
+    </div>
+
+    <!-- Desktop table view -->
+    <div class="d-none d-md-block">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Author</th>
+                        <th>Post</th>
+                        <th>Review Content</th>
+                        <th>Status</th>
+                        <th>Spam Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% allReviews.forEach(review => { %>
+                        <tr>
+                            <td><%= review.createdAt ? review.createdAt.toLocaleDateString() : 'N/A' %></td>
+                            <td>
+                                <% if (review.author && review.author._id.toString() === "618ae270defe900f7f2980d5") { %>
+                                    <span class="badge bg-secondary">Anonymous</span>
+                                <% } else if (review.author) { %>
+                                    <div>
+                                        <strong><%= review.author.username %></strong>
+                                        <% if (review.author.email) { %>
+                                            <br><small class="text-muted"><%= review.author.email %></small>
+                                        <% } %>
+                                    </div>
+                                <% } else { %>
+                                    <span class="badge bg-danger">Unknown</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (review.blogIM) { %>
+                                    <a href="/blogim/<%= review.blogIM._id %>">
+                                        <%= review.blogIM.title %>
+                                    </a>
+                                <% } else { %>
+                                    <span class="text-muted">Post not found</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div class="review-content" style="max-width: 300px; word-wrap: break-word;">
+                                    <%= review.body.length > 100 ? review.body.substring(0, 100) + '...' : review.body %>
+                                </div>
+                            </td>
+                            <td>
+                                <% if (review.isFlagged) { %>
+                                    <span class="badge bg-danger">Flagged</span>
+                                    <% if (review.flagReason) { %>
+                                        <br><small class="text-muted"><%= review.flagReason %></small>
+                                    <% } %>
+                                <% } else { %>
+                                    <span class="badge bg-success">Approved</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (review.spamScore > 0) { %>
+                                    <span class="badge bg-<%= review.spamScore >= 10 ? 'danger' : review.spamScore >= 5 ? 'warning' : 'info' %>">
+                                        <%= review.spamScore %>
+                                    </span>
+                                <% } else { %>
+                                    <span class="text-muted">0</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <% if (review.isFlagged) { %>
+                                        <form action="/admin/flagged-reviews/<%= review._id %>/approve" method="POST" style="display: inline;" class="approve-form">
+                                            <button type="submit" class="btn btn-success btn-sm approve-btn">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                    
+                                    <!-- Delete with reason modal trigger -->
+                                    <button type="button" class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal<%= review._id %>">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Mobile card view -->
+    <div class="d-md-none">
+        <div class="row">
+            <% allReviews.forEach(review => { %>
+                <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Header with date and status -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> 
+                                        <%= review.createdAt ? review.createdAt.toLocaleDateString() : 'N/A' %>
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <% if (review.isFlagged) { %>
+                                        <span class="badge bg-danger">Flagged</span>
+                                        <% if (review.flagReason) { %>
+                                            <br><small class="text-muted"><%= review.flagReason %></small>
+                                        <% } %>
+                                    <% } else { %>
+                                        <span class="badge bg-success">Approved</span>
+                                    <% } %>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Desktop table view -->
-                        <div class="d-none d-md-block">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Author</th>
-                                            <th>Post</th>
-                                            <th>Review Content</th>
-                                            <th>Status</th>
-                                            <th>Spam Score</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% allReviews.forEach(review => { %>
-                                            <tr>
-                                                <td><%= review.createdAt ? review.createdAt.toLocaleDateString() : 'N/A' %></td>
-                                                <td>
-                                                    <% if (review.author && review.author._id.toString() === "618ae270defe900f7f2980d5") { %>
-                                                        <span class="badge bg-secondary">Anonymous</span>
-                                                    <% } else if (review.author) { %>
-                                                        <div>
-                                                            <strong><%= review.author.username %></strong>
-                                                            <% if (review.author.email) { %>
-                                                                <br><small class="text-muted"><%= review.author.email %></small>
-                                                            <% } %>
-                                                        </div>
-                                                    <% } else { %>
-                                                        <span class="badge bg-danger">Unknown</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (review.blogIM) { %>
-                                                        <a href="/blogim/<%= review.blogIM._id %>">
-                                                            <%= review.blogIM.title %>
-                                                        </a>
-                                                    <% } else { %>
-                                                        <span class="text-muted">Post not found</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <div class="review-content" style="max-width: 300px; word-wrap: break-word;">
-                                                        <%= review.body.length > 100 ? review.body.substring(0, 100) + '...' : review.body %>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <% if (review.isFlagged) { %>
-                                                        <span class="badge bg-danger">Flagged</span>
-                                                        <% if (review.flagReason) { %>
-                                                            <br><small class="text-muted"><%= review.flagReason %></small>
-                                                        <% } %>
-                                                    <% } else { %>
-                                                        <span class="badge bg-success">Approved</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (review.spamScore > 0) { %>
-                                                        <span class="badge bg-<%= review.spamScore >= 10 ? 'danger' : review.spamScore >= 5 ? 'warning' : 'info' %>">
-                                                            <%= review.spamScore %>
-                                                        </span>
-                                                    <% } else { %>
-                                                        <span class="text-muted">0</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <% if (review.isFlagged) { %>
-                                                            <form action="/admin/flagged-reviews/<%= review._id %>/approve" method="POST" style="display: inline;">
-                                                                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approve this review?')">
-                                                                    <i class="fas fa-check"></i> Approve
-                                                                </button>
-                                                            </form>
-                                                        <% } %>
-                                                        
-                                                        <!-- Delete with reason modal trigger -->
-                                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<%= review._id %>">
-                                                            <i class="fas fa-trash"></i> Delete
-                                                        </button>
-                                                    </div>
-
-                                                    <!-- Delete Confirmation Modal -->
-                                                    <div class="modal fade" id="deleteModal<%= review._id %>" tabindex="-1">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title">Delete Review</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                                </div>
-                                                                <form action="/admin/all-reviews/<%= review._id %>/delete" method="POST">
-                                                                    <div class="modal-body">
-                                                                        <p>Are you sure you want to delete this review?</p>
-                                                                        
-                                                                        <div class="mb-3">
-                                                                            <label for="reason<%= review._id %>" class="form-label">Reason for deletion (will be emailed to user if not anonymous):</label>
-                                                                            <textarea class="form-control" id="reason<%= review._id %>" name="reason" rows="3" placeholder="Enter reason for deletion..."></textarea>
-                                                                        </div>
-                                                                        
-                                                                        <div class="alert alert-info">
-                                                                            <strong>Review Content:</strong><br>
-                                                                            "<%= review.body %>"
-                                                                        </div>
-                                                                        
-                                                                        <% if (review.author && review.author._id.toString() !== "618ae270defe900f7f2980d5") { %>
-                                                                            <div class="alert alert-warning">
-                                                                                <i class="fas fa-envelope"></i> An email will be sent to <strong><%= review.author.username %></strong> (<%= review.author.email %>)
-                                                                            </div>
-                                                                        <% } else { %>
-                                                                            <div class="alert alert-secondary">
-                                                                                <i class="fas fa-user-secret"></i> This is an anonymous review - no email will be sent
-                                                                            </div>
-                                                                        <% } %>
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                        <button type="submit" class="btn btn-danger">Delete Review</button>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
+                            
+                            <!-- Author info -->
+                            <div class="mb-2">
+                                <% if (review.author && review.author._id.toString() === "618ae270defe900f7f2980d5") { %>
+                                    <span class="badge bg-secondary"><i class="fas fa-user-secret"></i> Anonymous</span>
+                                <% } else if (review.author) { %>
+                                    <div>
+                                        <strong><i class="fas fa-user"></i> <%= review.author.username %></strong>
+                                        <% if (review.author.email) { %>
+                                            <br><small class="text-muted"><%= review.author.email %></small>
+                                        <% } %>
+                                    </div>
+                                <% } else { %>
+                                    <span class="badge bg-danger"><i class="fas fa-question"></i> Unknown</span>
+                                <% } %>
                             </div>
-                        </div>
-
-                        <!-- Mobile card view -->
-                        <div class="d-md-none">
-                            <div class="row">
-                                <% allReviews.forEach(review => { %>
-                                    <div class="col-12 mb-3">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <!-- Header with date and status -->
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <div>
-                                                        <small class="text-muted">
-                                                            <i class="fas fa-calendar"></i> 
-                                                            <%= review.createdAt ? review.createdAt.toLocaleDateString() : 'N/A' %>
-                                                        </small>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <% if (review.isFlagged) { %>
-                                                            <span class="badge bg-danger">Flagged</span>
-                                                            <% if (review.flagReason) { %>
-                                                                <br><small class="text-muted"><%= review.flagReason %></small>
-                                                            <% } %>
-                                                        <% } else { %>
-                                                            <span class="badge bg-success">Approved</span>
-                                                        <% } %>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Author info -->
-                                                <div class="mb-2">
-                                                    <% if (review.author && review.author._id.toString() === "618ae270defe900f7f2980d5") { %>
-                                                        <span class="badge bg-secondary"><i class="fas fa-user-secret"></i> Anonymous</span>
-                                                    <% } else if (review.author) { %>
-                                                        <div>
-                                                            <strong><i class="fas fa-user"></i> <%= review.author.username %></strong>
-                                                            <% if (review.author.email) { %>
-                                                                <br><small class="text-muted"><%= review.author.email %></small>
-                                                            <% } %>
-                                                        </div>
-                                                    <% } else { %>
-                                                        <span class="badge bg-danger"><i class="fas fa-question"></i> Unknown</span>
-                                                    <% } %>
-                                                </div>
-                                                
-                                                <!-- Post info -->
-                                                <div class="mb-2">
-                                                    <% if (review.blogIM) { %>
-                                                        <small class="text-muted">
-                                                            <i class="fas fa-blog"></i> 
-                                                            <a href="/blogim/<%= review.blogIM._id %>" class="text-decoration-none">
-                                                                <%= review.blogIM.title %>
-                                                            </a>
-                                                        </small>
-                                                    <% } else { %>
-                                                        <small class="text-muted">
-                                                            <i class="fas fa-exclamation-triangle"></i> Post not found
-                                                        </small>
-                                                    <% } %>
-                                                </div>
-                                                
-                                                <!-- Review content -->
-                                                <div class="mb-3">
-                                                    <div class="review-content p-2 bg-light rounded">
-                                                        <%= review.body.length > 150 ? review.body.substring(0, 150) + '...' : review.body %>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Footer with spam score and actions -->
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <% if (review.spamScore > 0) { %>
-                                                            <span class="badge bg-<%= review.spamScore >= 10 ? 'danger' : review.spamScore >= 5 ? 'warning' : 'info' %>">
-                                                                <i class="fas fa-shield-alt"></i> <%= review.spamScore %>
-                                                            </span>
-                                                        <% } else { %>
-                                                            <span class="text-muted">Score: 0</span>
-                                                        <% } %>
-                                                    </div>
-                                                    
-                                                    <div class="btn-group" role="group">
-                                                        <% if (review.isFlagged) { %>
-                                                            <form action="/admin/flagged-reviews/<%= review._id %>/approve" method="POST" style="display: inline;">
-                                                                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approve this review?')" title="Approve">
-                                                                    <i class="fas fa-check"></i>
-                                                                </button>
-                                                            </form>
-                                                        <% } %>
-                                                        
+                            
+                            <!-- Post info -->
+                            <div class="mb-2">
+                                <% if (review.blogIM) { %>
+                                    <small class="text-muted">
+                                        <i class="fas fa-blog"></i> 
+                                        <a href="/blogim/<%= review.blogIM._id %>" class="text-decoration-none">
+                                            <%= review.blogIM.title %>
+                                        </a>
+                                    </small>
+                                <% } else { %>
+                                    <small class="text-muted">
+                                        <i class="fas fa-exclamation-triangle"></i> Post not found
+                                    </small>
+                                <% } %>
+                            </div>
+                            
+                            <!-- Review content -->
+                            <div class="mb-3">
+                                <div class="review-content p-2 bg-light rounded">
+                                    <%= review.body.length > 150 ? review.body.substring(0, 150) + '...' : review.body %>
+                                </div>
+                            </div>
+                            
+                            <!-- Footer with spam score and actions -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <% if (review.spamScore > 0) { %>
+                                        <span class="badge bg-<%= review.spamScore >= 10 ? 'danger' : review.spamScore >= 5 ? 'warning' : 'info' %>">
+                                            <i class="fas fa-shield-alt"></i> <%= review.spamScore %>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="text-muted">Score: 0</span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="btn-group" role="group">
+                                    <% if (review.isFlagged) { %>
+                                        <form action="/admin/flagged-reviews/<%= review._id %>/approve" method="POST" style="display: inline;" class="approve-form">
+                                            <button type="submit" class="btn btn-success btn-sm approve-btn" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                    
                                                         <!-- Delete with reason modal trigger -->
-                                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<%= review._id %>" title="Delete">
+                                                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal<%= review._id %>" title="Delete">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Delete Confirmation Modal (Mobile-friendly) -->
-                                                <div class="modal fade" id="deleteModal<%= review._id %>" tabindex="-1">
-                                                    <div class="modal-dialog modal-dialog-centered">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title">Delete Review</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                            </div>
-                                                            <form action="/admin/all-reviews/<%= review._id %>/delete" method="POST">
-                                                                <div class="modal-body">
-                                                                    <p>Are you sure you want to delete this review?</p>
-                                                                    
-                                                                    <div class="mb-3">
-                                                                        <label for="reason<%= review._id %>" class="form-label">Reason for deletion:</label>
-                                                                        <textarea class="form-control" id="reason<%= review._id %>" name="reason" rows="3" placeholder="Enter reason for deletion..."></textarea>
-                                                                    </div>
-                                                                    
-                                                                    <div class="alert alert-info">
-                                                                        <strong>Review Content:</strong><br>
-                                                                        "<%= review.body %>"
-                                                                    </div>
-                                                                    
-                                                                    <% if (review.author && review.author._id.toString() !== "618ae270defe900f7f2980d5") { %>
-                                                                        <div class="alert alert-warning">
-                                                                            <i class="fas fa-envelope"></i> Email will be sent to <strong><%= review.author.username %></strong>
-                                                                        </div>
-                                                                    <% } else { %>
-                                                                        <div class="alert alert-secondary">
-                                                                            <i class="fas fa-user-secret"></i> Anonymous review - no email sent
-                                                                        </div>
-                                                                    <% } %>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            </div>
-                        </div>
-                        
-                        <!-- Summary stats -->
-                        <div class="mt-3">
-                            <div class="card bg-light">
-                                <div class="card-body py-2">
-                                    <small class="text-muted">
-                                        <strong>Summary:</strong> 
-                                        Total: <%= allReviews.length %> | 
-                                        Flagged: <%= allReviews.filter(r => r.isFlagged).length %> | 
-                                        Approved: <%= allReviews.filter(r => !r.isFlagged).length %>
-                                    </small>
                                 </div>
                             </div>
                         </div>
-                    <% } %>
-                <style>
-    .review-content {
-        font-size: 0.9em;
-        line-height: 1.4;
-    }
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <!-- All Modals moved outside any container structure -->
+    <% allReviews.forEach(review => { %>
+        <!-- Delete Confirmation Modal (works for both desktop and mobile) -->
+        <div class="modal fade" id="deleteModal<%= review._id %>" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Review</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/admin/all-reviews/<%= review._id %>/delete" method="POST">
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this review?</p>
+                            
+                            <div class="mb-3">
+                                <label for="reason<%= review._id %>" class="form-label">Reason for deletion (will be emailed to user if not anonymous):</label>
+                                <textarea class="form-control" id="reason<%= review._id %>" name="reason" rows="3" placeholder="Enter reason for deletion..."></textarea>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <strong>Review Content:</strong><br>
+                                "<%= review.body %>"
+                            </div>
+                            
+                            <% if (review.author && review.author._id.toString() !== "618ae270defe900f7f2980d5") { %>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-envelope"></i> An email will be sent to <strong><%= review.author.username %></strong> (<%= review.author.email %>)
+                                </div>
+                            <% } else { %>
+                                <div class="alert alert-secondary">
+                                    <i class="fas fa-user-secret"></i> This is an anonymous review - no email will be sent
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Delete Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+
+    <% }); %>
     
-    .table th {
-        border-top: none;
-    }
-    
-    .badge {
-        font-size: 0.8em;
-    }
-    
-    .btn-group .btn {
-        margin-right: 5px;
-    }
-    
-    .modal-body {
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-</style>
+    <!-- Summary stats -->
+    <div class="mt-3">
+        <div class="card bg-light">
+            <div class="card-body py-2">
+                <small class="text-muted">
+                    <strong>Summary:</strong> 
+                    Total: <%= allReviews.length %> | 
+                    Flagged: <%= allReviews.filter(r => r.isFlagged).length %> | 
+                    Approved: <%= allReviews.filter(r => !r.isFlagged).length %>
+                </small>
+            </div>
+        </div>
+    </div>
+<% } %>

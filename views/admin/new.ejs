@@ -3,34 +3,34 @@
 
 <div class="row">
     <div class="col-lg-8 offset-lg-2">
-                    <form action="/admin/posts" method="POST" class="validated-form" novalidate>
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Post title</label>
-                            <input class="form-control" type="text" id="title" name="title" required autofocus>
-                            <div class="invalid-feedback">
-                                Please provide a title
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="img" class="form-label">Image source</label>
-                            <input type="text" name="img" class="form-control" value="/images/postPics/*.jpg" placeholder="/images/postPics/your-image.jpg">
-                        </div>
-                        <div class="mb-3">
-                            <label for="num" class="form-label">Post Number</label>
-                            <input type="number" name="num" class="form-control" value="<%= num %>" required>
-                            <small class="form-text text-muted">Next available post number: <%= num %></small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="post" class="form-label">Post content</label>
-                            <textarea class="form-control" name="post" rows="10" required placeholder="Enter your blog post content here..."></textarea>
-                            <div class="invalid-feedback">
-                                Please enter post content
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-primary">Create Post</button>
-                            <a href="/admin/posts" class="btn btn-secondary">Cancel</a>
-                        </div>
-                    </form>
+        <form action="/admin/posts" method="POST" class="validated-form" novalidate>
+            <div class="mb-3">
+                <label for="title" class="form-label">Post title</label>
+                <input class="form-control" type="text" id="title" name="title" required autofocus>
+                <div class="invalid-feedback">
+                    Please provide a title
                 </div>
+            </div>
+            <div class="mb-3">
+                <label for="img" class="form-label">Image source</label>
+                <input type="text" name="img" class="form-control" value="/images/postPics/*.jpg" placeholder="/images/postPics/your-image.jpg">
+            </div>
+            <div class="mb-3">
+                <label for="num" class="form-label">Post Number</label>
+                <input type="number" name="num" class="form-control" value="<%= num %>" required>
+                <small class="form-text text-muted">Next available post number: <%= num %></small>
+            </div>
+            <div class="mb-3">
+                <label for="post" class="form-label">Post content</label>
+                <textarea class="form-control" name="post" rows="10" required placeholder="Enter your blog post content here..."></textarea>
+                <div class="invalid-feedback">
+                    Please enter post content
+                </div>
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Create Post</button>
+                <a href="/admin/posts" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>

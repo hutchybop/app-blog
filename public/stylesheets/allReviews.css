@@ -1,0 +1,21 @@
+.review-content {
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.table th {
+    border-top: none;
+}
+
+.badge {
+    font-size: 0.8em;
+}
+
+.btn-group .btn {
+    margin-right: 5px;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}

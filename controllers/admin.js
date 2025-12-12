@@ -133,6 +133,7 @@ module.exports.flaggedReviews = async (req, res) => {
     flaggedReviewsCount: flaggedReviews.length,
     allReviewsCount: allReviews.length,
     title: "Flagged Reviews - Admin",
+    page: "flaggedReviews",
   });
 };
 
@@ -185,6 +186,7 @@ module.exports.allReviews = async (req, res) => {
     flaggedReviewsCount: flaggedReviews.length,
     allReviewsCount: allReviews.length,
     title: "All Reviews - Admin",
+    page: "allReviews",
   });
 };
 
