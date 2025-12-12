@@ -96,18 +96,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 // Allows us to add HTTP verbs other than post
 app.use(methodOverride("_method", { methods: ["POST", "GET"] }));
-
-app.use(
-  express.static(path.join(__dirname, "/public"), {
-    setHeaders: (res, path) => {
-      if (path.endsWith(".js")) {
-        res.setHeader("Content-Type", "application/javascript");
-      } else if (path.endsWith(".css")) {
-        res.setHeader("Content-Type", "text/css");
-      }
-    },
-  }),
-);
+app.use(express.static(path.join(__dirname, "/public")));
 // Helps to stop mongo injection by not allowing certain characters in the query string
 // Custom mongo sanitize middleware for Express 5 compatibility
 app.use((req, res, next) => {
