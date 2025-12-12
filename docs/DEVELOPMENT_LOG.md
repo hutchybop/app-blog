@@ -1,5 +1,30 @@
 # Development Log
 
+## Session 8
+
+### Friday December 12th
+
+<br>
+
+**Summary:** This session focused on production deployment preparations and bug fixes, including updating CSS/JS files for production, resolving MIME type configuration issues, and fixing file naming case errors to ensure proper deployment functionality.
+
+**Git Branch:** main <br>
+**Git commits:** <br>
+ce97d9e, ee5735d, 039b696, e96ad2f, c79afe0, cf870c1
+
+**Session git history:**
+
+- fix file name case errors - _Corrected file naming case sensitivity issues for deployment compatibility_
+- fix syntax error in mime 20251212-1024 - _Resolved MIME type configuration syntax errors_
+- debug MIME error 20251212-1017 - _Fixed MIME type debugging and configuration issues_
+- update MIME types 20251212-1009 - _Updated MIME type configuration for proper file serving_
+- Update css/js files in prod - _Updated production CSS and JavaScript files for deployment_
+- update dev-log 20251212-0949 - _Updated development documentation with session information_
+
+---
+
+<br>
+
 ## Session 7
 
 ### Friday December 12th
