@@ -9,7 +9,8 @@ const { loginUser, logoutUser } = require("../utils/auth");
 module.exports.register = (req, res) => {
   res.render("users/register", {
     title: "Register at blog.longrunner.co.uk",
-    page: "Users",
+    css_page: "users",
+    js_page: "register",
   });
 };
 
@@ -48,7 +49,7 @@ module.exports.registerPost = async (req, res) => {
 module.exports.login = (req, res) => {
   res.render("users/login", {
     title: "Login to blog.longrunner.co.uk",
-    page: "Users",
+    css_page: "users",
   });
 };
 

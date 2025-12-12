@@ -2,6 +2,12 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+// Suppress deprecation warnings from dependencies
+if (process.env.NODE_ENV === "production") {
+  const util = require("util");
+  util.isArray = Array.isArray;
+}
+
 // required packages
 const express = require("express");
 const path = require("path");
@@ -376,7 +382,7 @@ app.use((req, res) => {
   res.status(404).render("policy/error", {
     err: { message: "Page Not Found", statusCode: 404 },
     title: "Error - Page Not Found",
-    page: "error",
+    css_page: "error",
   });
 });
 

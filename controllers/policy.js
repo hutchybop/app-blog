@@ -4,7 +4,7 @@ const { mail } = require("../utils/mail");
 module.exports.cookiePolicy = (req, res) => {
   res.render("policy/cookiePolicy", {
     title: "cookiePolicy",
-    page: "cookiePolicy",
+    css_page: "cookiePolicy",
   });
 };
 
@@ -13,7 +13,8 @@ module.exports.tandc = (req, res) => {
   res.render("policy/tandc", {
     captcha: res.recaptcha,
     title: "slapp.longrunner.co.uk Information Page",
-    page: "tandc",
+    js_page: "tandc",
+    css_page: "tandc",
   });
 };
 

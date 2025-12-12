@@ -12,7 +12,8 @@ module.exports.index = async (req, res) => {
   }
 
   res.render("blogim/index", {
-    page: "Home",
+    js_page: "home",
+    css_page: "home",
     title: "My Ironman Blog",
     posts,
     sortOrder,
@@ -28,5 +29,5 @@ module.exports.show = async (req, res) => {
       select: "username email",
     },
   });
-  res.render("blogim/show", { page: "Blog", title: post.title, post });
+  res.render("blogim/show", { css_page: "blog", title: post.title, post });
 };
