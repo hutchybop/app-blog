@@ -96,6 +96,13 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 // Allows us to add HTTP verbs other than post
 app.use(methodOverride("_method", { methods: ["POST", "GET"] }));
+
+// Set correct MIME types for static files
+express.static.mime.define({
+  "application/javascript": ["js"],
+  "text/css": ["css"],
+});
+
 app.use(express.static(path.join(__dirname, "/public")));
 // Helps to stop mongo injection by not allowing certain characters in the query string
 // Custom mongo sanitize middleware for Express 5 compatibility
