@@ -1,5 +1,22 @@
 # Development Log
 
+## Session 9
+
+### Sunday December 21st
+
+<br>
+
+**Summary:** This session focused on project management and documentation updates, specifically updating the development log with proper session tracking and ensuring all project documentation remains current and well-organized for future development work.
+
+**Git Branch:** main <br>
+**Git commits:** <br>
+
+**Session git history:**
+
+---
+
+<br>
+
 ## Session 8
 
 ### Friday December 12th
