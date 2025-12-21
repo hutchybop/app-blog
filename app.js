@@ -232,12 +232,6 @@ app.use(async (req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
 
-  // // Setting up tracker log
-  // myLogger(req, res, next)
-  // if(String(req.secure) == process.env.REQ_SECURE){
-  //     return res.redirect('https://' + req.headers.host + req.url)
-  // }
-
   next();
 });
 
