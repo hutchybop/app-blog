@@ -367,7 +367,7 @@ app.use(trackRequest);
 app.use(errorHandler);
 
 // Start server on port 3004 using HTTP
-const port = 3001;
+const port = 3004;
 app.listen(port, () => {
   console.log("Server listening on PORT", port);
 });
