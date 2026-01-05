@@ -136,48 +136,53 @@ module.exports.reset = async (req, res) => {
 // reset - user (POST)
 module.exports.resetPost = async (req, res) => {
   // Find user by token and check if token is unused and not expired
-  const foundUser = await User.findOne({
-    resetPasswordToken: req.params.token,
-    resetPasswordUsed: { $ne: true },
-    resetPasswordExpires: { $gt: new Date() },
-  });
+  try {
+    const foundUser = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordUsed: { $ne: true },
+      resetPasswordExpires: { $gt: new Date() },
+    });
 
-  if (!foundUser) {
-    req.flash(
-      "error",
-      "Password reset token is invalid, has been used, or has expired.",
+    if (!foundUser) {
+      req.flash(
+        "error",
+        "Password reset token is invalid, has been used, or has expired.",
+      );
+      return res.redirect("back");
+    }
+
+    // Check if passwords match
+    if (req.body.password !== req.body.confirm_password) {
+      req.flash("error", "Passwords do not match.");
+      return res.redirect("back");
+    }
+
+    // Set new password and invalidate token in one operation
+    foundUser.password = await PasswordUtils.hashPassword(req.body.password);
+    foundUser.resetPasswordToken = undefined;
+    foundUser.resetPasswordExpires = undefined;
+    foundUser.resetPasswordUsed = true; // Mark token as used
+    foundUser.hash = undefined;
+    foundUser.salt = undefined;
+
+    await foundUser.save();
+    await loginUser(req, foundUser);
+
+    mail(
+      "Your password has been changed for blog.longrunner.co.uk",
+      "Hello,\n\n" +
+        "This is a confirmation that the password for your account " +
+        foundUser.email +
+        " on blog.longrunner.co.uk has just been changed.\n",
+      foundUser.email,
     );
-    return res.redirect("back");
+
+    req.flash("success", "Success! Your password has been changed.");
+    res.redirect("/");
+  } catch (e) {
+    req.flash("error", e.message);
+    res.redirect("/auth/login");
   }
-
-  // Check if passwords match
-  if (req.body.password !== req.body.confirm_password) {
-    req.flash("error", "Passwords do not match.");
-    return res.redirect("back");
-  }
-
-  // Set new password and invalidate token in one operation
-  foundUser.password = await PasswordUtils.hashPassword(req.body.password);
-  foundUser.resetPasswordToken = undefined;
-  foundUser.resetPasswordExpires = undefined;
-  foundUser.resetPasswordUsed = true; // Mark token as used
-  foundUser.hash = undefined;
-  foundUser.salt = undefined;
-
-  await foundUser.save();
-  await loginUser(req, foundUser);
-
-  mail(
-    "Your password has been changed for blog.longrunner.co.uk",
-    "Hello,\n\n" +
-      "This is a confirmation that the password for your account " +
-      foundUser.email +
-      " on blog.longrunner.co.uk has just been changed.\n",
-    foundUser.email,
-  );
-
-  req.flash("success", "Success! Your password has been changed.");
-  res.redirect("/");
 };
 
 // change user details (GET)

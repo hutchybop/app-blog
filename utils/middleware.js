@@ -14,7 +14,6 @@ const catchAsync = require("./catchAsync");
 
 // Function to send a Flash error instead of re-directing to error page
 const JoiFlashError = (error, req, res, next, url) => {
-  console.log("JoiFlashError called, error:", error);
   if (error) {
     const msg = error.details.map((el) => el.message).join(",");
     console.log("validation error message:", msg);
@@ -29,10 +28,10 @@ const JoiFlashError = (error, req, res, next, url) => {
         "There has been a validation error, please try again.",
       );
     }
-    console.log("redirecting to:", url);
+    // throw new ExpressError(msg, 400)
+    // ExpressError will send the user to the error page
     return res.redirect(`${url}`);
   } else {
-    console.log("no validation error, calling next()");
     return next();
   }
 };
@@ -130,41 +129,32 @@ module.exports.isLoggedIn = (req, res, next) => {
 
 module.exports.populateUser = async (req, res, next) => {
   if (req.session && req.session.userId) {
-    User.findById(req.session.userId)
+    await User.findById(req.session.userId)
       .then((user) => {
         if (!user) {
           // User not found in database, clear session
           delete req.session.userId;
+          req.user = null;
         } else {
           req.user = user;
         }
         next();
       })
-      .catch((err) => {
-        console.error("Error populating user:", err);
-        next();
-      });
+      .catch((err) => next(err));
   } else {
     next();
   }
 };
 
-// Helper function to check if user is admin
-const isAdminUser = (user) => {
-  return user && user.role === "admin";
-};
-
 // Middleware to check if user is admin
 module.exports.isAdmin = (req, res, next) => {
-  if (!isAdminUser(req.user)) {
+  const user = req.user;
+  if (!user || user.role !== "admin") {
     req.flash("error", "You do not have permission to do that");
     return res.redirect("/");
   }
   next();
 };
-
-// Export helper for use in templates
-module.exports.isAdminUser = isAdminUser;
 
 // Middleware to check if user is review author
 module.exports.isReviewAuthor = async (req, res, next) => {

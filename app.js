@@ -2,37 +2,18 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-// Suppress deprecation warnings from dependencies
-if (process.env.NODE_ENV === "production") {
-  const util = require("util");
-  util.isArray = Array.isArray;
-}
-
-// required packages
+// External Imports
 const express = require("express");
 const path = require("path");
 const { mongoose } = require("mongoose");
+const { MongoStore } = require("connect-mongo");
+const mongoSanitize = require("express-mongo-sanitize");
 const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
 const session = require("express-session");
-const { MongoStore } = require("connect-mongo");
-const flash = require("connect-flash");
 const back = require("express-back");
-
 const helmet = require("helmet");
-const { getIpInfoMiddleware } = require("./utils/ipMiddleware");
-const { trackRequest } = require("./utils/tracker");
-const { checkBlockedIP } = require("./utils/blockedIPMiddleware");
 const compression = require("compression");
-const {
-  generalLimiter,
-  authLimiter,
-  passwordResetLimiter,
-  registrationLimiter,
-  reviewLimiter,
-} = require("./utils/rateLimiter");
-
-// database lookup for blockedIPs
 
 // Required for recaptcha
 const Recaptcha = require("express-recaptcha").RecaptchaV2;
@@ -40,13 +21,24 @@ const recaptcha = new Recaptcha(process.env.SITEKEY, process.env.SECRETKEY, {
   callback: "cb",
 });
 
-// requires modules.exports
+// Local imports
+const { getIpInfoMiddleware } = require("./utils/ipMiddleware");
+const { checkBlockedIP } = require("./utils/blockedIPMiddleware");
+const { trackRequest } = require("./utils/tracker");
+const {
+  generalLimiter,
+  authLimiter,
+  passwordResetLimiter,
+  registrationLimiter,
+  reviewLimiter,
+} = require("./utils/rateLimiter");
+const { authenticateUser, loginUser } = require("./utils/auth"); // Custom authentication
+const flash = require("./utils/flash");
 const policy = require("./controllers/policy");
 const users = require("./controllers/users");
 const reviews = require("./controllers/reviews");
 const blogsIM = require("./controllers/blogsIM");
 const admin = require("./controllers/admin");
-
 const { errorHandler } = require("./utils/errorHandler");
 const catchAsync = require("./utils/catchAsync");
 const {
@@ -72,14 +64,13 @@ if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
-// setting up mongoose
+// Setting up mongoose
 const dbUrl = [
   "mongodb+srv://hutch:",
   process.env.MONGODB,
   "@hutchybop.kpiymrr.mongodb.net/blog?",
   "retryWrites=true&w=majority&appName=hutchyBop",
 ].join("");
-
 mongoose.connect(dbUrl);
 
 // Error Handling for the db connection
@@ -89,58 +80,32 @@ db.once("open", () => {
   console.log("Database connected");
 });
 
-app.engine("ejs", ejsMate);
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+// Setting up the app
+app.engine("ejs", ejsMate); // Tells express to use ejsmate for rendering .ejs html files
+app.set("view engine", "ejs"); // Sets ejs as the default engine
+app.set("views", path.join(__dirname, "views")); // Forces express to look at views directory for .ejs files
+app.use(express.urlencoded({ extended: true })); // Makes req.body available
+app.use(methodOverride("_method", { methods: ["POST", "GET"] })); // Allows us to add HTTP verbs other than post
+app.use(express.static(path.join(__dirname, "/public"))); // Serves static files (css, js, imgaes) from public directory
 
-app.use(express.urlencoded({ extended: true }));
-// Allows us to add HTTP verbs other than post
-app.use(methodOverride("_method", { methods: ["POST", "GET"] }));
-app.use(express.static(path.join(__dirname, "/public")));
 // Helps to stop mongo injection by not allowing certain characters in the query string
-// Custom mongo sanitize middleware for Express 5 compatibility
 app.use((req, res, next) => {
-  const sanitize = (obj) => {
-    if (typeof obj !== "object" || obj === null) {
-      return obj;
-    }
-
-    const sanitized = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        if (typeof obj[key] === "string") {
-          sanitized[key] = obj[key].replace(/\$/g, "");
-        } else if (typeof obj[key] === "object") {
-          sanitized[key] = sanitize(obj[key]);
-        } else {
-          sanitized[key] = obj[key];
-        }
-      }
-    }
-    return sanitized;
-  };
-
-  // Sanitize query, body, and params
-  req.query = sanitize(req.query);
-  req.body = sanitize(req.body);
-  req.params = sanitize(req.params);
-
+  if (req.body)
+    req.body = mongoSanitize.sanitize(req.body, { replaceWith: "_" });
+  if (req.params)
+    req.params = mongoSanitize.sanitize(req.params, { replaceWith: "_" });
   next();
 });
-
-// Helmet protects again basic security holes.
-app.use(helmet());
 
 // Setting up helmet to allow certain scripts/stylesheets
 const scriptSrcUrls = [
   "https://stackpath.bootstrapcdn.com/",
-  "https://kit.fontawesome.com/",
   "https://cdnjs.cloudflare.com/",
   "https://cdn.jsdelivr.net",
-  "https://cdn.jsdelivr.net/",
   "https://code.jquery.com/",
-  "https://www.google.com/recaptcha/",
-  "https://www.gstatic.com/recaptcha/",
+  "https://www.google.com/recaptcha/api.js",
+  "https://www.gstatic.com/recaptcha/releases/",
+  "https://use.fontawesome.com/",
 ];
 const styleSrcUrls = [
   "https://kit-free.fontawesome.com/",
@@ -150,54 +115,98 @@ const styleSrcUrls = [
   "https://cdn.jsdelivr.net/",
   "https://cdnjs.cloudflare.com/",
   "https://fonts.gstatic.com",
-  "https://fonts.googleapis.com/",
+  "https://www.gstatic.com/recaptcha/releases/",
 ];
-const imgSrcUrls = [];
-const connectSrcUrls = [
-  "https://cdn.jsdelivr.net/",
-  "https://code.jquery.com/",
-  "https://cdnjs.cloudflare.com/",
-  "https://fonts.googleapis.com/",
-  "https://fonts.gstatic.com",
+const imgSrcUrls = [
+  "https://www.gstatic.com/recaptcha/",
   "https://www.google.com/recaptcha/",
+];
+const connectSrcUrls = [
+  "https://www.google.com/",
   "https://www.gstatic.com/recaptcha/",
 ];
 const fontSrcUrls = [
   "https://cdnjs.cloudflare.com/",
   "https://fonts.gstatic.com",
   "https://fonts.googleapis.com/",
+  "https://use.fontawesome.com/",
 ];
-
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      connectSrc: ["'self'", ...connectSrcUrls],
-      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
-      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
-      workerSrc: ["'self'", "blob:"],
-      objectSrc: [],
-      imgSrc: ["'self'", "blob:", "data:", ...imgSrcUrls],
-      fontSrc: ["'self'", ...fontSrcUrls],
-      frameSrc: ["'self'", "https://www.google.com/recaptcha/"],
-    },
-  }),
-);
+const frameSrcUrls = ["https://www.google.com", "https://www.recaptcha.net"];
+// Function to configure helmet based on environment
+function configureHelmet() {
+  if (process.env.NODE_ENV === "production") {
+    app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'self'", "'unsafe-inline'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: ["'none'"],
+            imgSrc: ["'self'", "blob:", "data:", ...imgSrcUrls],
+            fontSrc: ["'self'", ...fontSrcUrls],
+            frameSrc: ["'self'", ...frameSrcUrls],
+            upgradeInsecureRequests: null, // Relax or adjust as necessary
+            scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Adjust based on your needs
+          },
+        },
+        crossOriginOpenerPolicy: { policy: "same-origin" },
+        originAgentCluster: true,
+      }),
+    );
+  } else {
+    app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'", "*"],
+            connectSrc: ["'self'", "*", ...connectSrcUrls],
+            scriptSrc: [
+              "'self'",
+              "'unsafe-inline'",
+              "'unsafe-eval'",
+              "*",
+              ...scriptSrcUrls,
+            ],
+            styleSrc: ["'self'", "'unsafe-inline'", "*", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: ["'self'", "*"],
+            imgSrc: ["'self'", "blob:", "data:", "*", ...imgSrcUrls],
+            fontSrc: ["'self'", "*", ...fontSrcUrls],
+            frameSrc: ["'self'", "*", ...frameSrcUrls],
+            upgradeInsecureRequests: null,
+            scriptSrcAttr: ["'self'", "'unsafe-inline'", "*"],
+          },
+        },
+        crossOriginOpenerPolicy: { policy: "unsafe-none" }, // Relaxed for development
+        originAgentCluster: false, // Disabled in development
+        referrerPolicy: { policy: "no-referrer-when-downgrade" }, // Less strict referrer policy
+        frameguard: false, // Disable clickjacking protection in development
+        hsts: false, // Disable HTTP Strict Transport Security (HSTS) in development
+        noSniff: false, // Allow MIME type sniffing in development
+      }),
+    );
+  }
+}
+// Apply helmet configuration
+configureHelmet();
 
 //setting up session
 const sessionConfig = {
-  name: "blog_longrunner",
-  secret: process.env.SESSION_KEY,
-  resave: false,
-  saveUninitialized: false,
+  name: "blog_longrunner", // Name for the session cookie
+  secret: process.env.SESSION_KEY, // Secures the session
+  resave: false, // Do not save session if unmodified
+  saveUninitialized: false, // Do not create session until something stored
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7 * 2, // 14 days
+    httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
     secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS
     sameSite: "strict", // Protect against CSRF
   },
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || dbUrl,
+    mongoUrl: dbUrl,
   }),
 };
 app.use(session(sessionConfig));
@@ -205,36 +214,20 @@ app.use(session(sessionConfig));
 // Required after session setup.
 app.use(flash());
 app.use(back());
-
-// Custom authentication middleware to populate user from session
-app.use(populateUser);
-
-// Setting up IP middleware
-app.use(getIpInfoMiddleware);
-
-// Blocked IP middleware - check before tracking
-app.use(checkBlockedIP);
-
-// Tracker middleware - place after IP middleware but before compression
-app.use(trackRequest);
-
-// Compression to make website run quicker
-app.use(compression());
-
-// Apply general rate limiting to all requests
-app.use(generalLimiter);
+app.use(populateUser); // Custom authentication middleware to populate user from session
+app.use(getIpInfoMiddleware); // Setting up IP middleware
+app.use(checkBlockedIP); // Blocked IP middleware - check before tracking
+app.use(trackRequest); // Tracker middleware - place after IP middleware but before compression
+app.use(compression()); // Compression to make website run quicker
+app.use(generalLimiter); // Apply general rate limiting to all requests
 
 // Middleware to set local variables and handle user session data
 app.use(async (req, res, next) => {
-  // console.log(`${req.method} ${req.url} - middleware hit`); // Commented out to reduce console noise
   res.locals.currentUser = req.user;
-  // Setting up flash
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-
   next();
 });
 
+////////////////////////////// Routes //////////////////////////////
 // policy routes
 app.get("/policy/cookie-policy", policy.cookiePolicy);
 app.get("/policy/tandc", recaptcha.middleware.render, policy.tandc);
@@ -244,9 +237,8 @@ app.post(
   validateTandC,
   policy.tandcPost,
 );
-app.get("/policy/logs", catchAsync(policy.logs));
 
-// auth routes (new /auth prefix)
+// auth routes
 app.get("/auth/register", users.register);
 app.post(
   "/auth/register",
@@ -259,9 +251,9 @@ app.post(
   "/auth/login",
   authLimiter,
   validateLogin,
-  require("./utils/auth").authenticateUser,
+  authenticateUser,
   catchAsync(async (req, res) => {
-    await require("./utils/auth").loginUser(req, req.user);
+    await loginUser(req, req.user);
     req.flash("success", "Welcome back!");
     const redirectUrl = req.session.returnTo || "/";
     delete req.session.returnTo;
@@ -269,9 +261,7 @@ app.post(
   }),
 );
 app.get("/auth/logout", users.logout);
-app.get("/auth/forgot", (req, res, next) => {
-  return users.forgot(req, res, next);
-});
+app.get("/auth/forgot", users.forgot);
 app.post(
   "/auth/forgot",
   passwordResetLimiter,
@@ -285,25 +275,8 @@ app.post("/auth/details", validateDetails, catchAsync(users.detailsPost));
 app.get("/auth/delete-pre", isLoggedIn, users.deletePre);
 app.delete("/auth/delete", isLoggedIn, validateDelete, users.delete);
 
-// review routes
-app.post(
-  "/blogim/:id/reviews",
-  reviewLimiter,
-  validateReview,
-  catchAsync(reviews.create),
-);
-app.delete(
-  "/blogim/:id/reviews/:reviewId",
-  isReviewAuthor,
-  isLoggedIn,
-  catchAsync(reviews.delete),
-);
-app.get("/blogim/:id/reviews", reviews.reviewLogin);
-
-// Admin dashboard route
+// admin routes
 app.get("/admin", isLoggedIn, isAdmin, catchAsync(admin.dashboard));
-
-// Admin routes for content moderation
 app.get(
   "/admin/flagged-reviews",
   isLoggedIn,
@@ -316,8 +289,6 @@ app.post(
   isAdmin,
   catchAsync(admin.updateFlaggedReview),
 );
-
-// Admin routes for all reviews management
 app.get(
   "/admin/all-reviews",
   isLoggedIn,
@@ -330,8 +301,6 @@ app.post(
   isAdmin,
   catchAsync(admin.deleteReviewWithReason),
 );
-
-// Admin routes for post management
 app.get("/admin/posts", isLoggedIn, isAdmin, catchAsync(admin.posts));
 app.get("/admin/posts/new", isLoggedIn, isAdmin, catchAsync(admin.newPost));
 app.post("/admin/posts", isLoggedIn, isAdmin, catchAsync(admin.createPost));
@@ -348,11 +317,7 @@ app.delete(
   isAdmin,
   catchAsync(admin.deletePost),
 );
-
-// Admin tracker analytics routes
 app.get("/admin/tracker", isLoggedIn, isAdmin, catchAsync(admin.tracker));
-
-// Admin blocked IP management routes
 app.get(
   "/admin/blocked-ips",
   isLoggedIn,
@@ -362,13 +327,28 @@ app.get(
 app.post("/admin/block-ip", isLoggedIn, isAdmin, catchAsync(admin.blockIP));
 app.post("/admin/unblock-ip", isLoggedIn, isAdmin, catchAsync(admin.unblockIP));
 
+// review routes
+app.post(
+  "/blogim/:id/reviews",
+  reviewLimiter,
+  validateReview,
+  catchAsync(reviews.create),
+);
+app.delete(
+  "/blogim/:id/reviews/:reviewId",
+  isReviewAuthor,
+  isLoggedIn,
+  catchAsync(reviews.delete),
+);
+app.get("/blogim/:id/reviews", reviews.reviewLogin);
+
 // blogIM routes (public only)
 app.get("/", catchAsync(blogsIM.index));
 app.get("/blogim/:id", catchAsync(blogsIM.show));
 
 // Site-Map route
 app.get("/sitemap.xml", (req, res) => {
-  res.sendFile(path.join(__dirname, "views/policy/sitemap.xml"));
+  res.sendFile("/home/hutch/slapp/public/manifest/sitemap.xml");
 });
 
 // Unknown (404) webpage error
@@ -380,13 +360,14 @@ app.use((req, res) => {
   });
 });
 
-// Tracker middleware - place after IP middleware but before compression
+// Tracker middleware
 app.use(trackRequest);
 
 // Error Handler, from utils.
 app.use(errorHandler);
 
 // Start server on port 3004 using HTTP
-app.listen(3004, () => {
-  console.log("Server listening on PORT 3004");
+const port = 3001;
+app.listen(port, () => {
+  console.log("Server listening on PORT", port);
 });
