@@ -10,7 +10,7 @@ const rateLimitHandler = (req, res) => {
 // General rate limiter for most endpoints
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limit each IP to 100 requests per windowMs
+  max: 200, // Limit each IP requests per windowMs
   handler: rateLimitHandler,
   standardHeaders: true,
   legacyHeaders: false,
@@ -28,7 +28,7 @@ const authRateLimitHandler = (req, res) => {
 // Strict rate limiter for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 5 auth attempts per windowMs
+  max: 10, // Limit each IP auth attempts per windowMs
   handler: authRateLimitHandler,
   standardHeaders: true,
   legacyHeaders: false,
@@ -47,41 +47,23 @@ const passwordResetRateLimitHandler = (req, res) => {
 // Password reset rate limiter (even more restrictive)
 const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit each IP to 3 password reset requests per hour
+  max: 5, // Limit each IP password reset requests per hour
   handler: passwordResetRateLimitHandler,
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Custom handler for registration rate limit exceeded
-const registrationRateLimitHandler = (req, res) => {
-  req.flash("error", "Too many registration attempts, please try again later.");
-  return res.redirect("/auth/register");
-};
-
-// Registration rate limiter
-const registrationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit each IP to 3 registration attempts per hour
-  handler: registrationRateLimitHandler,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Custom handler for review rate limit exceeded
-const reviewRateLimitHandler = (req, res) => {
-  req.flash(
-    "error",
-    "Too many review submissions, please wait before posting another review.",
-  );
+// Custom handler for form sumissions rate limit exceeded
+const formSubmissionRateLimitHandler = (req, res) => {
+  req.flash("error", "Too many submissions, please wait before trying again.");
   return res.redirect("back");
 };
 
-// Review submission rate limiter
-const reviewLimiter = rateLimit({
+// Form sumissions rate limiter
+const formSubmissionLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // Limit each IP to 3 reviews per 15 minutes
-  handler: reviewRateLimitHandler,
+  max: 10, // Limit each IP reviews per 15 minutes
+  handler: formSubmissionRateLimitHandler,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
@@ -94,6 +76,5 @@ module.exports = {
   generalLimiter,
   authLimiter,
   passwordResetLimiter,
-  registrationLimiter,
-  reviewLimiter,
+  formSubmissionLimiter,
 };

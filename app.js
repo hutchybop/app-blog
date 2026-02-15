@@ -14,6 +14,7 @@ const session = require("express-session");
 const back = require("express-back");
 const helmet = require("helmet");
 const compression = require("compression");
+const favicon = require("serve-favicon");
 
 // Required for recaptcha
 const Recaptcha = require("express-recaptcha").RecaptchaV2;
@@ -29,8 +30,7 @@ const {
   generalLimiter,
   authLimiter,
   passwordResetLimiter,
-  registrationLimiter,
-  reviewLimiter,
+  formSubmissionLimiter,
 } = require("./utils/rateLimiter");
 const { authenticateUser, loginUser } = require("./utils/auth"); // Custom authentication
 const flash = require("./utils/flash");
@@ -65,11 +65,13 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Setting up mongoose
+const dbName = "blog";
 const dbUrl = [
   "mongodb+srv://hutch:",
   process.env.MONGODB,
-  "@hutchybop.kpiymrr.mongodb.net/blog?",
-  "retryWrites=true&w=majority&appName=hutchyBop",
+  "@hutchybop.kpiymrr.mongodb.net/",
+  dbName,
+  "?retryWrites=true&w=majority&appName=hutchyBop",
 ].join("");
 mongoose.connect(dbUrl);
 
@@ -80,10 +82,18 @@ db.once("open", () => {
   console.log("Database connected");
 });
 
+// Serve favicon from public/favicon directory
+app.use(favicon(path.join(__dirname, "public", "favicon", "favicon.ico")));
+// Handle favicon requests explicitly
+app.use("/favicon.ico", (req, res) => {
+  res.sendStatus(204); // No Content
+});
+
 // Setting up the app
 app.engine("ejs", ejsMate); // Tells express to use ejsmate for rendering .ejs html files
 app.set("view engine", "ejs"); // Sets ejs as the default engine
 app.set("views", path.join(__dirname, "views")); // Forces express to look at views directory for .ejs files
+app.use(express.json()); // Middleware to parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Makes req.body available
 app.use(methodOverride("_method", { methods: ["POST", "GET"] })); // Allows us to add HTTP verbs other than post
 app.use(express.static(path.join(__dirname, "/public"))); // Serves static files (css, js, imgaes) from public directory
@@ -234,6 +244,7 @@ app.get("/policy/tandc", recaptcha.middleware.render, policy.tandc);
 app.post(
   "/policy/tandc",
   recaptcha.middleware.verify,
+  formSubmissionLimiter,
   validateTandC,
   policy.tandcPost,
 );
@@ -242,7 +253,7 @@ app.post(
 app.get("/auth/register", users.register);
 app.post(
   "/auth/register",
-  registrationLimiter,
+  authLimiter,
   validateRegister,
   catchAsync(users.registerPost),
 );
@@ -271,7 +282,12 @@ app.post(
 app.get("/auth/reset/:token", users.reset);
 app.post("/auth/reset/:token", validateReset, catchAsync(users.resetPost));
 app.get("/auth/details", isLoggedIn, users.details);
-app.post("/auth/details", validateDetails, catchAsync(users.detailsPost));
+app.post(
+  "/auth/details",
+  validateDetails,
+  formSubmissionLimiter,
+  catchAsync(users.detailsPost),
+);
 app.get("/auth/delete-pre", isLoggedIn, users.deletePre);
 app.delete("/auth/delete", isLoggedIn, validateDelete, users.delete);
 
@@ -330,7 +346,7 @@ app.post("/admin/unblock-ip", isLoggedIn, isAdmin, catchAsync(admin.unblockIP));
 // review routes
 app.post(
   "/blogim/:id/reviews",
-  reviewLimiter,
+  formSubmissionLimiter,
   validateReview,
   catchAsync(reviews.create),
 );
@@ -348,7 +364,7 @@ app.get("/blogim/:id", catchAsync(blogsIM.show));
 
 // Site-Map route
 app.get("/sitemap.xml", (req, res) => {
-  res.sendFile("/home/hutch/slapp/public/manifest/sitemap.xml");
+  res.sendFile(path.join(__dirname, "public", "manifest", "sitemap.xml"));
 });
 
 // Unknown (404) webpage error
@@ -368,6 +384,6 @@ app.use(errorHandler);
 
 // Start server on port 3004 using HTTP
 const port = 3004;
-app.listen(port, () => {
-  console.log("Server listening on PORT", port);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port} on all interfaces`);
 });
