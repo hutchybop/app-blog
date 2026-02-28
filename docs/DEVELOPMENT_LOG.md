@@ -1,5 +1,30 @@
 # Development Log
 
+## Session 10
+
+### Saturday February 28th
+
+<br>
+
+**Summary:** This session focused on dependency updates and code cleanup, including updating npm packages for security and compatibility, adjusting port configurations for the application, removing obsolete tracker code and files, and ensuring the codebase remains current and maintainable.
+
+**Git Branch:** main <br>
+**Git commits:** <br>
+5a6ff22, 363cce2, b538556, 110a0ca, d2d6b01, c146123, 19b216d
+
+**Session git history:**
+
+- Update npm packages - _Updated npm packages for improved security and compatibility_
+- update ports for NPM - _Adjusted port configuration for NPM integration_
+- update port number - _Modified application port number settings_
+- update package.json - _Updated package.json with new dependencies and configurations_
+- remove old tracker code - _Cleaned up deprecated tracker implementation code_
+- remove old tracker files - _Removed obsolete tracker files from the project_
+
+---
+
+<br>
+
 ## Session 9
 
 ### Sunday December 21st
