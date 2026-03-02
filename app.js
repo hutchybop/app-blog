@@ -25,7 +25,9 @@ const recaptcha = new Recaptcha(process.env.SITEKEY, process.env.SECRETKEY, {
 // Local imports
 const { getIpInfoMiddleware } = require("./utils/ipMiddleware");
 const { checkBlockedIP } = require("./utils/blockedIPMiddleware");
-const { trackRequest } = require("./utils/tracker");
+const {
+  trackRequest: globalTrackRequest,
+} = require("../../tracker/app-tracker/utils/tracker");
 const {
   generalLimiter,
   authLimiter,
@@ -227,7 +229,7 @@ app.use(back());
 app.use(populateUser); // Custom authentication middleware to populate user from session
 app.use(getIpInfoMiddleware); // Setting up IP middleware
 app.use(checkBlockedIP); // Blocked IP middleware - check before tracking
-app.use(trackRequest); // Tracker middleware - place after IP middleware but before compression
+app.use(globalTrackRequest("blog")); // Global tracker middleware
 app.use(compression()); // Compression to make website run quicker
 app.use(generalLimiter); // Apply general rate limiting to all requests
 
@@ -375,9 +377,6 @@ app.use((req, res) => {
     css_page: "error",
   });
 });
-
-// Tracker middleware
-app.use(trackRequest);
 
 // Error Handler, from utils.
 app.use(errorHandler);

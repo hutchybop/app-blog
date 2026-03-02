@@ -489,19 +489,46 @@
                         <% if (pagination.totalPages > 1) { %>
                             <nav aria-label="Tracker pagination">
                                 <!-- Desktop pagination -->
-                                <ul class="pagination justify-content-center d-none d-md-flex">
+                                <ul class="pagination justify-content-center d-none d-md-flex flex-wrap">
                                     <% if (pagination.hasPrevPage) { %>
                                         <li class="page-item">
                                             <a class="page-link" href="/admin/tracker?page=<%= pagination.currentPage - 1 %>&limit=<%= pagination.limit %>">Previous</a>
                                         </li>
                                     <% } %>
-                                     
-                                    <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                                    
+                                    <% 
+                                    const maxPages = 7;
+                                    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxPages / 2));
+                                    let endPage = Math.min(pagination.totalPages, startPage + maxPages - 1);
+                                    
+                                    if (endPage - startPage < maxPages - 1) {
+                                        startPage = Math.max(1, endPage - maxPages + 1);
+                                    }
+                                    
+                                    if (startPage > 1) { %>
+                                        <li class="page-item">
+                                            <a class="page-link" href="/admin/tracker?page=1&limit=<%= pagination.limit %>">1</a>
+                                        </li>
+                                        <% if (startPage > 2) { %>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <% } %>
+                                    <% } %>
+                                    
+                                    <% for (let i = startPage; i <= endPage; i++) { %>
                                         <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
                                             <a class="page-link" href="/admin/tracker?page=<%= i %>&limit=<%= pagination.limit %>"><%= i %></a>
                                         </li>
                                     <% } %>
-                                     
+                                    
+                                    <% if (endPage < pagination.totalPages) { %>
+                                        <% if (endPage < pagination.totalPages - 1) { %>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <% } %>
+                                        <li class="page-item">
+                                            <a class="page-link" href="/admin/tracker?page=<%= pagination.totalPages %>&limit=<%= pagination.limit %>"><%= pagination.totalPages %></a>
+                                        </li>
+                                    <% } %>
+                                    
                                     <% if (pagination.hasNextPage) { %>
                                         <li class="page-item">
                                             <a class="page-link" href="/admin/tracker?page=<%= pagination.currentPage + 1 %>&limit=<%= pagination.limit %>">Next</a>
