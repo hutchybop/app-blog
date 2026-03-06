@@ -21,6 +21,6 @@ module.exports.errorHandler = (err, req, res, next) => {
   res.status(statusCode).render("policy/error", {
     err,
     title: "Error - Something Went Wrong",
-    page: "Error",
+    css_page: "error",
   });
 };

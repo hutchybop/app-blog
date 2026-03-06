@@ -22,10 +22,7 @@ const recaptcha = new Recaptcha(process.env.SITEKEY, process.env.SECRETKEY, {
   callback: "cb",
 });
 
-// Local imports
-const { getIpInfoMiddleware } = require("./utils/ipMiddleware");
-const { checkBlockedIP } = require("./utils/blockedIPMiddleware");
-const { trackRequest } = require("./utils/tracker");
+// Local Imports
 const {
   generalLimiter,
   authLimiter,
@@ -36,12 +33,14 @@ const { authenticateUser, loginUser } = require("./utils/auth"); // Custom authe
 const flash = require("./utils/flash");
 const policy = require("./controllers/policy");
 const users = require("./controllers/users");
+const catchAsync = require("./utils/catchAsync");
+const { errorHandler } = require("./utils/errorHandler");
+// App specific Local Imports
 const reviews = require("./controllers/reviews");
 const blogsIM = require("./controllers/blogsIM");
 const admin = require("./controllers/admin");
-const { errorHandler } = require("./utils/errorHandler");
-const catchAsync = require("./utils/catchAsync");
 const {
+  // common validation
   validateTandC,
   validateLogin,
   validateRegister,
@@ -49,14 +48,15 @@ const {
   validateReset,
   validateDetails,
   validateDelete,
+  isLoggedIn,
+  populateUser,
+  // app specific validation
   validateReview,
   isReviewAuthor,
-  isLoggedIn,
   isAdmin,
-  populateUser,
 } = require("./utils/middleware");
 
-// setting up express
+// Setting up express
 const app = express();
 
 // If in production, tells express about nginx proxy
@@ -95,7 +95,7 @@ app.set("view engine", "ejs"); // Sets ejs as the default engine
 app.set("views", path.join(__dirname, "views")); // Forces express to look at views directory for .ejs files
 app.use(express.json()); // Middleware to parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Makes req.body available
-app.use(methodOverride("_method", { methods: ["POST", "GET"] })); // Allows us to add HTTP verbs other than post
+app.use(methodOverride("_method")); // Allows us to add HTTP verbs other than post
 app.use(express.static(path.join(__dirname, "/public"))); // Serves static files (css, js, imgaes) from public directory
 
 // Helps to stop mongo injection by not allowing certain characters in the query string
@@ -158,8 +158,8 @@ function configureHelmet() {
             imgSrc: ["'self'", "blob:", "data:", ...imgSrcUrls],
             fontSrc: ["'self'", ...fontSrcUrls],
             frameSrc: ["'self'", ...frameSrcUrls],
-            upgradeInsecureRequests: null, // Relax or adjust as necessary
-            scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Adjust based on your needs
+            upgradeInsecureRequests: null,
+            scriptSrcAttr: ["'self'", "'unsafe-inline'"],
           },
         },
         crossOriginOpenerPolicy: { policy: "same-origin" },
@@ -203,7 +203,7 @@ function configureHelmet() {
 // Apply helmet configuration
 configureHelmet();
 
-//setting up session
+// Setting up the session
 const sessionConfig = {
   name: "blog_longrunner", // Name for the session cookie
   secret: process.env.SESSION_KEY, // Secures the session
@@ -212,8 +212,8 @@ const sessionConfig = {
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7 * 2, // 14 days
     httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-    secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS
     sameSite: "strict", // Protect against CSRF
+    secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS
   },
   store: MongoStore.create({
     mongoUrl: dbUrl,
@@ -225,9 +225,6 @@ app.use(session(sessionConfig));
 app.use(flash());
 app.use(back());
 app.use(populateUser); // Custom authentication middleware to populate user from session
-app.use(getIpInfoMiddleware); // Setting up IP middleware
-app.use(checkBlockedIP); // Blocked IP middleware - check before tracking
-app.use(trackRequest); // Tracker middleware - place after IP middleware but before compression
 app.use(compression()); // Compression to make website run quicker
 app.use(generalLimiter); // Apply general rate limiting to all requests
 
@@ -237,7 +234,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
-////////////////////////////// Routes //////////////////////////////
+////////////////////////////// Common Routes //////////////////////////////
 // policy routes
 app.get("/policy/cookie-policy", policy.cookiePolicy);
 app.get("/policy/tandc", recaptcha.middleware.render, policy.tandc);
@@ -288,9 +285,10 @@ app.post(
   formSubmissionLimiter,
   catchAsync(users.detailsPost),
 );
-app.get("/auth/delete-pre", isLoggedIn, users.deletePre);
+app.get("/auth/deletepre", isLoggedIn, users.deletePre);
 app.delete("/auth/delete", isLoggedIn, validateDelete, users.delete);
 
+////////////////////////////// App Specific Routes //////////////////////////////
 // admin routes
 app.get("/admin", isLoggedIn, isAdmin, catchAsync(admin.dashboard));
 app.get(
@@ -333,15 +331,6 @@ app.delete(
   isAdmin,
   catchAsync(admin.deletePost),
 );
-app.get("/admin/tracker", isLoggedIn, isAdmin, catchAsync(admin.tracker));
-app.get(
-  "/admin/blocked-ips",
-  isLoggedIn,
-  isAdmin,
-  catchAsync(admin.blockedIPs),
-);
-app.post("/admin/block-ip", isLoggedIn, isAdmin, catchAsync(admin.blockIP));
-app.post("/admin/unblock-ip", isLoggedIn, isAdmin, catchAsync(admin.unblockIP));
 
 // review routes
 app.post(
@@ -362,6 +351,7 @@ app.get("/blogim/:id/reviews", reviews.reviewLogin);
 app.get("/", catchAsync(blogsIM.index));
 app.get("/blogim/:id", catchAsync(blogsIM.show));
 
+////////////////////////////// Util Routes //////////////////////////////
 // Site-Map route
 app.get("/sitemap.xml", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "manifest", "sitemap.xml"));
@@ -375,9 +365,6 @@ app.use((req, res) => {
     css_page: "error",
   });
 });
-
-// Tracker middleware
-app.use(trackRequest);
 
 // Error Handler, from utils.
 app.use(errorHandler);

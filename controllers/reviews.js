@@ -1,16 +1,12 @@
 const Review = require("../models/review");
 const BlogIM = require("../models/blogIM");
-const BlockedIP = require("../models/blockedIP");
 const { mail } = require("../utils/mail");
-const { reviewIp } = require("../utils/ipLookup");
 const ContentFilter = require("../utils/contentFilter");
 
 module.exports.create = async (req, res) => {
   const blogIM = await BlogIM.findById(req.params.id);
   const review = new Review(req.body.review);
   review.blogIM = blogIM._id;
-  const blocked = await BlockedIP.find();
-  let { ip, countryName, cityName } = reviewIp(req);
   let flashmsg;
 
   // Enhanced content filtering and spam detection
@@ -33,19 +29,6 @@ module.exports.create = async (req, res) => {
         ? "High spam score: " + contentValidation.reasons.join(", ")
         : "Spam detected: " + contentValidation.reasons.join(", ");
 
-    // Block IP if high spam score
-    if (contentValidation.score >= 10) {
-      if (blocked[0] !== undefined) {
-        if (!blocked[0].blockedIPArray.includes(ip)) {
-          blocked[0].blockedIPArray.push(ip);
-          blocked[0].markModified("blockedIPArray");
-          await blocked[0].save();
-        }
-      } else {
-        new BlockedIP({ blockedIPArray: [ip] }).save();
-      }
-    }
-
     // Save flagged review for admin review (don't add to post yet)
     await review.save();
 
@@ -66,15 +49,6 @@ module.exports.create = async (req, res) => {
         "By: " +
         (req.user ? req.user.username : "anonymous") +
         "\n\n" +
-        "IP Address: " +
-        ip +
-        "\n" +
-        "Country: " +
-        countryName +
-        "\n" +
-        "City: " +
-        cityName +
-        "\n\n" +
         "Spam Details: " +
         JSON.stringify(contentValidation.details, null, 2),
     );
@@ -88,8 +62,6 @@ module.exports.create = async (req, res) => {
 
   // Store metadata for moderation
   review.spamScore = contentValidation.score;
-  review.ipAddress = ip;
-  review.userAgent = req.get("User-Agent") || "Unknown";
 
   // Flag for admin review if moderate spam score
   if (contentValidation.score >= 3 && contentValidation.score < 5) {
@@ -133,15 +105,6 @@ module.exports.create = async (req, res) => {
         "By: " +
         (req.user ? req.user.username : "anonymous") +
         "\n\n" +
-        "IP Address: " +
-        ip +
-        "\n" +
-        "Country: " +
-        countryName +
-        "\n" +
-        "City: " +
-        cityName +
-        "\n\n" +
         "Spam Details: " +
         JSON.stringify(contentValidation.details, null, 2),
     );
@@ -155,7 +118,6 @@ module.exports.delete = async (req, res) => {
   const { id, reviewId } = req.params;
   const blogIM = await BlogIM.findById(id);
   const review = await Review.findById(reviewId);
-  let { ip, countryName, cityName } = reviewIp(req);
 
   await Review.findByIdAndDelete(req.params.reviewId);
   await BlogIM.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
@@ -172,16 +134,7 @@ module.exports.delete = async (req, res) => {
       "Reading: " +
       review.body +
       "\n\nBy: " +
-      req.user.username +
-      "\n\n" +
-      "IP Address: " +
-      ip +
-      "\n" +
-      "Country: " +
-      countryName +
-      "\n" +
-      "City: " +
-      cityName,
+      req.user.username,
   );
 
   res.redirect(`/blogim/${id}`);

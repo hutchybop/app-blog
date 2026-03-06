@@ -1,6 +1,7 @@
 const User = require("../models/user");
-const Review = require("../models/review");
+const catchAsync = require("./catchAsync");
 const {
+  // common schema
   tandcSchema,
   loginSchema,
   registerSchema,
@@ -8,15 +9,17 @@ const {
   resetSchema,
   detailsSchema,
   deleteSchema,
+  // app specific schema
   reviewSchema,
 } = require("../models/schemas.js");
-const catchAsync = require("./catchAsync");
+const Review = require("../models/review");
+
+/////////////////////////////Common validation/////////////////////////////
 
 // Function to send a Flash error instead of re-directing to error page
 const JoiFlashError = (error, req, res, next, url) => {
   if (error) {
     const msg = error.details.map((el) => el.message).join(",");
-    console.log("validation error message:", msg);
     if (process.env.NODE_ENV !== "production") {
       // Allows for generic message in production
       req.flash("error", `${msg}`);
@@ -44,17 +47,7 @@ module.exports.validateTandC = catchAsync(async (req, res, next) => {
   JoiFlashError(error, req, res, next, "/policy/tandc");
 });
 
-// Uses Joi to validate user input for registration
-// registerSchema is coming from the schemas.js file
-module.exports.validateRegister = (req, res, next) => {
-  // registerSchema is coming from the schemas.js file
-  const { error } = registerSchema.validate(req.body);
-  // JoiFlashError function is defined above
-  JoiFlashError(error, req, res, next, "/auth/register");
-};
-
 // Uses Joi to validate user input for logging in
-// loginSchema is coming from the schemas.js file
 module.exports.validateLogin = (req, res, next) => {
   // loginSchema is coming from the schemas.js file
   const { error } = loginSchema.validate(req.body);
@@ -62,19 +55,23 @@ module.exports.validateLogin = (req, res, next) => {
   JoiFlashError(error, req, res, next, "/auth/login");
 };
 
+// Uses Joi to validate user input for registration
+module.exports.validateRegister = (req, res, next) => {
+  // registerSchema is coming from the schemas.js file
+  const { error } = registerSchema.validate(req.body);
+  // JoiFlashError function is defined above
+  JoiFlashError(error, req, res, next, "/auth/register");
+};
+
 // Uses Joi to validate user input for forgot password form
-// forgotSchema is coming from the schemas.js file
 module.exports.validateForgot = (req, res, next) => {
-  console.log("validateForgot called");
   // forgotSchema is coming from the schemas.js file
   const { error } = forgotSchema.validate(req.body);
-  console.log("validation error:", error);
   // JoiFlashError function is defined above
   JoiFlashError(error, req, res, next, "/auth/forgot");
 };
 
 // Uses Joi to validate user input for reset password form
-// resetSchema is coming from the schemas.js file
 module.exports.validateReset = (req, res, next) => {
   // resetSchema is coming from the schemas.js file
   const { error } = resetSchema.validate(req.body);
@@ -83,7 +80,6 @@ module.exports.validateReset = (req, res, next) => {
 };
 
 // Uses Joi to validate user input for changing details
-// detailsSchema is coming from the schemas.js file
 module.exports.validateDetails = (req, res, next) => {
   // detailsSchema is coming from the schemas.js file
   const { error } = detailsSchema.validate(req.body);
@@ -92,25 +88,11 @@ module.exports.validateDetails = (req, res, next) => {
 };
 
 // Uses Joi to validate user input for changing details
-// deleteSchema is coming from the schemas.js file
 module.exports.validateDelete = (req, res, next) => {
   // deleteSchema is coming from the schemas.js file
   const { error } = deleteSchema.validate(req.body);
   // JoiFlashError function is defined above
   JoiFlashError(error, req, res, next, "/auth/details");
-};
-
-// Uses Joi to validate user input for review form
-// reviewSchema is coming from the schemas.js file
-module.exports.validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body);
-  if (error) {
-    const msg = error.details.map((el) => el.message).join(",");
-    req.flash("error", msg);
-    return res.redirect("back");
-  } else {
-    return next();
-  }
 };
 
 // Middleware to populate user from session
@@ -144,6 +126,15 @@ module.exports.populateUser = async (req, res, next) => {
   } else {
     next();
   }
+};
+
+/////////////////////////////App Specific validation/////////////////////////////
+
+// Uses Joi to validate user input for review form
+module.exports.validateReview = (req, res, next) => {
+  // reviewSchema is coming from the schemas.js file
+  const { error } = reviewSchema.validate(req.body);
+  JoiFlashError(error, req, res, next, "/");
 };
 
 // Middleware to check if user is admin

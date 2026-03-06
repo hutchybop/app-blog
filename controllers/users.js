@@ -1,6 +1,6 @@
-const User = require("../models/user");
 const Review = require("../models/review");
 
+const User = require("../models/user");
 const { mail } = require("../utils/mail");
 const PasswordUtils = require("../utils/passwordUtils");
 const { loginUser, logoutUser } = require("../utils/auth");
@@ -34,7 +34,10 @@ module.exports.registerPost = async (req, res) => {
       "Hello,\n\n" +
         "A new User has registered! \n\n" +
         "Username: " +
-        username,
+        username +
+        "\n\n" +
+        "Email: " +
+        email,
     );
 
     req.flash("success", "You are logged in!");
@@ -45,7 +48,7 @@ module.exports.registerPost = async (req, res) => {
   }
 };
 
-// login - user (GET)
+// Login - user (GET)
 module.exports.login = (req, res) => {
   res.render("users/login", {
     title: "Login to blog.longrunner.co.uk",
@@ -53,7 +56,7 @@ module.exports.login = (req, res) => {
   });
 };
 
-// login - user (POST)
+// Login - user (POST)
 module.exports.loginPost = async (req, res) => {
   req.flash("success", "Welcome back!");
   const redirectUrl = req.session.returnTo || "/";
@@ -61,7 +64,7 @@ module.exports.loginPost = async (req, res) => {
   res.redirect(redirectUrl);
 };
 
-// logout - user (GET)
+// Logout - user (GET)
 module.exports.logout = async (req, res) => {
   req.flash("success", "Successfully logged out");
   try {
@@ -72,12 +75,12 @@ module.exports.logout = async (req, res) => {
   res.redirect("/");
 };
 
-// forgot - user (GET)
+// Forgot - user (GET)
 module.exports.forgot = (req, res) => {
   res.render("users/forgot", { title: "Password Reset" });
 };
 
-// forgot - user (POST)
+// Forgot - user (POST)
 module.exports.forgotPost = async (req, res) => {
   const token = PasswordUtils.generateResetToken();
 
@@ -112,7 +115,7 @@ module.exports.forgotPost = async (req, res) => {
   res.redirect("/auth/login");
 };
 
-// reset - user (GET)
+// Reset - user (GET)
 module.exports.reset = async (req, res) => {
   const foundUser = await User.findOne({
     resetPasswordToken: req.params.token,
@@ -133,7 +136,7 @@ module.exports.reset = async (req, res) => {
   });
 };
 
-// reset - user (POST)
+// Reset - user (POST)
 module.exports.resetPost = async (req, res) => {
   // Find user by token and check if token is unused and not expired
   try {
@@ -185,7 +188,7 @@ module.exports.resetPost = async (req, res) => {
   }
 };
 
-// change user details (GET)
+// Change user details (GET)
 module.exports.details = (req, res) => {
   const username = req.user.username;
   const email = req.user.email;
@@ -197,7 +200,7 @@ module.exports.details = (req, res) => {
   });
 };
 
-// change user details
+// Change user details (POST)
 module.exports.detailsPost = async (req, res) => {
   try {
     const { email, username } = req.body;
@@ -242,7 +245,7 @@ module.exports.detailsPost = async (req, res) => {
           "\n\n" +
           `Username: ${detailsUser.username}` +
           "\n\n" +
-          "If you did not make these changes please conact info@longrunner.co.uk",
+          "If you did not make these changes please conact hello@longrunner.co.uk",
         detailsUser.email,
       );
 
@@ -256,7 +259,7 @@ module.exports.detailsPost = async (req, res) => {
             "\n\n" +
             `Username: ${detailsUser.username}` +
             "\n\n" +
-            "If you did not make these changes please conact info@longrunner.co.uk",
+            "If you did not make these changes please conact hello@longrunner.co.uk",
           updatedUser.email,
         );
       }
@@ -280,9 +283,9 @@ module.exports.detailsPost = async (req, res) => {
   }
 };
 
-// delete account (GET)
+// Delete account (GET)
 module.exports.deletePre = (req, res) => {
-  if (req.user.username != "defaultMeals" && req.user.username != "anonymous") {
+  if (req.user.username != "defaultMeals") {
     const user = req.user;
 
     res.render("users/deletepre", {
@@ -295,12 +298,12 @@ module.exports.deletePre = (req, res) => {
   }
 };
 
-// delete account (POST)
+// Delete account (POST)
 module.exports.delete = async (req, res) => {
-  // checks if the password for the current user is correct
+  // Checks if the password for the current user is correct
   const auth = await req.user.authenticate(req.body.password);
 
-  if (req.user.username != "defaultMeals" && req.user.username != "anonymous") {
+  if (req.user.username != "defaultMeals") {
     if (auth.user !== false) {
       const userEmail = req.user.email; // Store email before deletion
 
@@ -326,10 +329,10 @@ module.exports.delete = async (req, res) => {
       );
     } else {
       req.flash("error", "Incorrect password, please try again");
-      res.redirect("/auth/delete-pre");
+      res.redirect("/auth/deletepre");
     }
   } else {
     req.flash("error", req.user.username + " cannot be deleted here");
-    res.redirect("/auth/delete-pre");
+    res.redirect("/auth/deletepre");
   }
 };

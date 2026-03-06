@@ -9,6 +9,9 @@ const extension = (joi) => ({
   },
   rules: {
     escapeHTML: {
+      method() {
+        return this.$_addRule("escapeHTML");
+      },
       validate(value, helpers) {
         const clean = sanitizeHtml(value, {
           allowedTags: [],
@@ -24,12 +27,13 @@ const extension = (joi) => ({
 
 const Joi = BaseJoi.extend(extension);
 
-module.exports.registerSchema = Joi.object({
-  username: Joi.string().required().escapeHTML(),
+/////////////////////////////Common schema/////////////////////////////
+
+module.exports.tandcSchema = Joi.object({
+  name: Joi.string().required().escapeHTML(),
+  message: Joi.string().required().escapeHTML(),
   email: Joi.string().email().required(),
-  password: Joi.string().required().escapeHTML(),
-  confirm_password: Joi.string().required().escapeHTML(),
-  tnc: Joi.string().valid("checked").optional(),
+  "g-recaptcha-response": Joi.string().allow(null, ""),
 }).required();
 
 module.exports.loginSchema = Joi.object({
@@ -38,8 +42,21 @@ module.exports.loginSchema = Joi.object({
   email: Joi.string().email(),
 }).required();
 
+module.exports.registerSchema = Joi.object({
+  username: Joi.string().required().escapeHTML(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required().escapeHTML(),
+  confirm_password: Joi.string().required().escapeHTML(),
+  tnc: Joi.string().valid("checked").optional(),
+}).required();
+
 module.exports.forgotSchema = Joi.object({
   email: Joi.string().email().required(),
+}).required();
+
+module.exports.resetSchema = Joi.object({
+  password: Joi.string().required().escapeHTML(),
+  confirm_password: Joi.string().required().escapeHTML(),
 }).required();
 
 module.exports.detailsSchema = Joi.object({
@@ -52,20 +69,10 @@ module.exports.deleteSchema = Joi.object({
   password: Joi.string().required().escapeHTML(),
 }).required();
 
-module.exports.resetSchema = Joi.object({
-  password: Joi.string().required().escapeHTML(),
-  confirm_password: Joi.string().required().escapeHTML(),
-}).required();
+/////////////////////////////App Specific schema/////////////////////////////
 
 module.exports.reviewSchema = Joi.object({
   review: Joi.object({
     body: Joi.string().required().escapeHTML(),
   }).required(),
 });
-
-module.exports.tandcSchema = Joi.object({
-  name: Joi.string().required().escapeHTML(),
-  message: Joi.string().required().escapeHTML(),
-  email: Joi.string().email().required(),
-  "g-recaptcha-response": Joi.string().allow(null, ""),
-}).required();

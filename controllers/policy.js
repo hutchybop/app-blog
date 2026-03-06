@@ -12,7 +12,7 @@ module.exports.cookiePolicy = (req, res) => {
 module.exports.tandc = (req, res) => {
   res.render("policy/tandc", {
     captcha: res.recaptcha,
-    title: "slapp.longrunner.co.uk Information Page",
+    title: "blog.longrunner.co.uk Information Page",
     js_page: "tandc",
     css_page: "tandc",
   });
@@ -22,9 +22,9 @@ module.exports.tandc = (req, res) => {
 module.exports.tandcPost = (req, res) => {
   if (!req.recaptcha.error) {
     mail(
-      "Contact Form Submitted - slapp.longrunner.co.uk",
+      "Contact Form Submitted - blog.longrunner.co.uk",
       "Hello,\n\n" +
-        "Your message to slapp.longrunner.co.uk has been submittted. The details are below" +
+        "Your message to blog.longrunner.co.uk has been submittted. The details are below" +
         "\n\n" +
         `Name: ${req.body.name}` +
         "\n\n" +
@@ -35,7 +35,7 @@ module.exports.tandcPost = (req, res) => {
     );
 
     mail(
-      "Contact Form Submitted - slapp.longrunner.co.uk",
+      "Contact Form Submitted - blog.longrunner.co.uk",
       "Hello,\n\n" +
         "A new message has been submitted" +
         "\n\n" +

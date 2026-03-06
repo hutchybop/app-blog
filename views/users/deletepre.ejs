@@ -4,15 +4,21 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">You are about to DELETE your account</h3>
+                <div class="card-header d-flex">
+                    <div class="me-auto">
+                        <h3 class="card-title">You are about to DELETE your account</h3>
+                    </div>
+                    <div>
+                        <a class="btn btn-success" href="/auth/details">Cancel</a>
+                    </div>
                 </div>
+      
                 <div class="card-body">
                     <ul class="list-group">
                         <li class="list-group-item">
                             <ul class="list-group">
                                 <li class="list-group-item">
-                                    You will lose all your information from blog.longrunner.co.uk for:
+                                    You will lose all your information from slapp.longrunner.co.uk for:
                                 </li>
                                 <li class="list-group-item">
                                     Username: <%=user.username%>
@@ -25,27 +31,25 @@
                         <li class="list-group-item">
                             This is irreversible
                         </li>
-                        
                         <li class="list-group-item">
                             All reviews will be deleted
-                        </li>
-                        <li class="list-group-item">
-                            All shopping lists will be deleted
                         </li>
                         <li class="list-group-item">
                             Please enter your password and click below to confirm this is what you want.
                         </li>
                     </ul>
+                    <a class="btn btn-success btn-lg mt-3" href="/auth/details">Cancel</a>
                 </div>
                     <form id="delete" action="/auth/delete?_method=DELETE" method='Post'>
-                        <div class="mb-0">
-                            <label class="form-label ms-2" for="password">Password</label>
+                        <div class="form-group mb-0">
+                            <label class="form-label ml-2" for="password" style="color: black;">Password:</label>
                             <input class="form-control" type="password" id="password" name="password" autofocus required>
                             <div class="invalid-feedback">
                                 Please enter your password to confirm
                             </div>
                             <button form="delete" class="btn btn-danger btn-block" type="submit">DELETE account</button>
                         </div>
+                            
                     </form>
                 </div>
             </div>

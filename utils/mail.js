@@ -21,5 +21,9 @@ module.exports.mail = async (subject, text, to) => {
     text: text,
   };
 
-  await smtpTransport.sendMail(mailOptions);
+  await smtpTransport.sendMail(mailOptions, (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
 };
