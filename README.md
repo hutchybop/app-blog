@@ -1,3 +1,18 @@
+# ⚠️ Archived Project
+
+### This repository has been archived and is no longer actively maintained.
+
+- No new features or bug fixes will be added
+- Issues and pull requests are no longer monitored
+- If you’d like to continue development, feel free to fork the project.
+
+Last maintained: 20260331
+
+Superseded by: longrunner-platform (monrepo project)
+
+---
+---
+
 # 🏃‍♂️ Ironman Training Blog
 
 A full-featured blog application built for Ironman training content at blog.longrunner.co.uk. This Node.js/Express application features user authentication, content management, and an interactive review system with advanced security and moderation capabilities.
